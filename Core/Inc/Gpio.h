@@ -10,12 +10,15 @@
 
 #include <stdint.h>
 #include "BaseAddress.h"
+#include "Common.h"
 
 typedef enum{
 	LOW_SPEED,MEDIUM_SPEED,HIGH_SPEED,VERY_HI_SPEED,
 } PinSpeed;
 
-typedef volatile uint32_t _IO_;
+typedef enum{
+	OPEN_DRAIN,PUSH_PULL,
+} PinOutputType;
 
 typedef struct Gpio Gpio;
 struct Gpio {
@@ -33,4 +36,7 @@ struct Gpio {
 
 #define gpioG (Gpio*)(GPIO_G)
 
+void gpioSetMode(Gpio *gpio , int pin , PinOutputType type);
+void gpioSetPinSpeed(Gpio *gpio , int pin , PinSpeed speed);
+void gpioWrite(Gpio *gpio , int pin , int value);
 #endif /* INC_GPIO_H_ */

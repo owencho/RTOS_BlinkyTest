@@ -1,0 +1,2 @@
+Rcc.c:12:6:enableGpioG	4	static
+Rcc.c:17:6:disableGpioG	4	static
