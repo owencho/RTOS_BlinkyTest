@@ -20,6 +20,11 @@ typedef enum{
 	OPEN_DRAIN,PUSH_PULL,
 } PinOutputType;
 
+typedef enum{
+	NONE,PULL_UP,PULL_DOWN,
+} PinPullUpDown;
+
+
 typedef struct Gpio Gpio;
 struct Gpio {
 	_IO_ MODER;

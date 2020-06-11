@@ -91,17 +91,17 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   enableGpioG();
-  gpioSetMode(gpioG, 13, PUSH_PULL);
-  gpioSetPinSpeed(gpioG,13,HIGH_SPEED);
+  gpioSetMode(gpioG, PIN_13, PUSH_PULL);
+  gpioSetPinSpeed(gpioG,PIN_13,HIGH_SPEED);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  gpioWrite(gpioG,13,1);
+	  gpioWrite(gpioG,PIN_13,1);
 	  HAL_Delay(1000);
-	  gpioWrite(gpioG,13,0);
+	  gpioWrite(gpioG,PIN_13,0);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
