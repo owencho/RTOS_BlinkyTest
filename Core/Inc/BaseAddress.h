@@ -12,7 +12,7 @@
 #define GPIO_B 0x40020400
 //..
 #define GPIO_G 0x40021800
-#define RCC_V 0x40023800
+#define RCC_BASEADDRESS 0x40023800
 
 
 #endif /* INC_BASEADDRESS_H_ */

@@ -91,7 +91,7 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   enableGpioG();
-  gpioSetMode(gpioG, PIN_13, PUSH_PULL);
+  gpioSetMode(gpioG, PIN_13, GPIO_OUT);
   gpioSetPinSpeed(gpioG,PIN_13,HIGH_SPEED);
   /* USER CODE END 2 */
 
@@ -100,8 +100,9 @@ int main(void)
   while (1)
   {
 	  gpioWrite(gpioG,PIN_13,1);
-	  HAL_Delay(1000);
+	  HAL_Delay(100);
 	  gpioWrite(gpioG,PIN_13,0);
+	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

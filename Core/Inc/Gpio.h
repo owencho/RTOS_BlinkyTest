@@ -21,27 +21,33 @@ typedef enum{
 } PinOutputType;
 
 typedef enum{
+	GPIO_IN,GPIO_OUT,GPIO_ALT,GPIO_ANALOG,
+} PinMode;
+
+typedef enum{
 	NONE,PULL_UP,PULL_DOWN,
 } PinPullUpDown;
 
 
-typedef struct Gpio Gpio;
-struct Gpio {
-	_IO_ MODER;
-	_IO_ OTYPER;
-	_IO_ OSPEEDR;
-	_IO_ PUPDR;
-	_IO_ IDR;
-	_IO_ ODR;
-	_IO_ BSRR;
-	_IO_ LCKR;
-	_IO_ AFRL;
-	_IO_ AFRH;
+typedef struct GpioRegs GpioRegs;
+struct GpioRegs {
+	IoRegister MODER;
+	IoRegister OTYPER;
+	IoRegister OSPEEDR;
+	IoRegister PUPDR;
+	IoRegister IDR;
+	IoRegister ODR;
+	IoRegister BSRR;
+	IoRegister LCKR;
+	IoRegister AFRL;
+	IoRegister AFRH;
 };
 
-#define gpioG (Gpio*)(GPIO_G)
+#define gpioG (GpioRegs*)(GPIO_G)
 
-void gpioSetMode(Gpio *gpio , int pin , PinOutputType type);
-void gpioSetPinSpeed(Gpio *gpio , int pin , PinSpeed speed);
-void gpioWrite(Gpio *gpio , int pin , int value);
+void gpioSetMode(GpioRegs *gpio , int pin , PinMode mode);
+void gpioSetOutputType(GpioRegs *gpio , int pin ,PinOutputType type);
+void gpioSetPinSpeed(GpioRegs *gpio , int pin , PinSpeed speed);
+void gpioWrite(GpioRegs *gpio , int pin , int value);
+
 #endif /* INC_GPIO_H_ */
