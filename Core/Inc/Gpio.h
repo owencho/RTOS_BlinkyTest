@@ -48,6 +48,7 @@ struct GpioRegs {
 void gpioSetMode(GpioRegs *gpio , int pin , PinMode mode);
 void gpioSetOutputType(GpioRegs *gpio , int pin ,PinOutputType type);
 void gpioSetPinSpeed(GpioRegs *gpio , int pin , PinSpeed speed);
-void gpioWrite(GpioRegs *gpio , int pin , int value);
+void gpioWriteBit(GpioRegs *gpio , int pin , int value);
+void gpioWrite(GpioRegs *gpio , int value);
 
 #endif /* INC_GPIO_H_ */

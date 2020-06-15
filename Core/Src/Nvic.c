@@ -6,9 +6,7 @@
  */
 
 void nvicEnableInterrupt(int interruptNum){
-	int a = (interruptNum >> 5) -1 ;
-	int b = interruptNum - (a << 5) ;
-
-	NVIC->ISER[a] = 1 << b;
+	int a = (interruptNum >> 5) - 1 ;
+	NVIC->ISER[a] = 1 <<(interruptNum - a << 5);
 }
 

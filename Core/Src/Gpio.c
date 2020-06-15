@@ -25,11 +25,12 @@ void gpioSetOutputType(GpioRegs *gpio , int pin ,PinOutputType type){
 }
 
 
-void gpioWrite(GpioRegs *gpio , int pin , int value){
-	if(value)
-		gpio->ODR |= 1 << pin;
-	else
-		gpio->ODR &= ~(1 << pin);
+void gpioWrite(GpioRegs *gpio , int value){
+	gpio->ODR = value;
 
+}
+
+void gpioWriteBit(GpioRegs *gpio , int pin , int value){
+	gpio->BSRR = 1<< (pin + ((~value & 1) <<4 ));
 }
 
