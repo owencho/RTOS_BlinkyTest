@@ -27,10 +27,18 @@ void gpioSetOutputType(GpioRegs *gpio , int pin ,PinOutputType type){
 
 void gpioWrite(GpioRegs *gpio , int value){
 	gpio->ODR = value;
-
 }
 
 void gpioWriteBit(GpioRegs *gpio , int pin , int value){
 	gpio->BSRR = 1<< (pin + ((~value & 1) <<4 ));
+}
+
+
+int gpioReadBit(GpioRegs *gpio , int pin ){
+	return (gpio->IDR >> pin )& 0x1;
+}
+
+void gpioToggleBit(GpioRegs *gpio , int pin ){
+	gpio->ODR ^= (1 << pin);
 }
 

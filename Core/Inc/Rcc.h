@@ -37,4 +37,6 @@ struct Rcc {
 #define rccReg (Rcc*)(RCC_BASEADDRESS)
 void enableGpioG();
 void disableGpioG();
+void enableGpioA();
+void disableGpioA();
 #endif /* INC_RCC_H_ */

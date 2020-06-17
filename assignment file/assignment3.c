@@ -119,7 +119,6 @@ int main(void)
 	  if(gpioReadBit(gpioA, 0)){
 		  if(!tickstart)
 			  tickstart = HAL_GetTick();
-
 		  if((HAL_GetTick() - tickstart) > 500){
 		  tickstart = 0;
 			  if(gpioReadBit(gpioA, 0))

@@ -19,3 +19,12 @@ void disableGpioG(){
 	rcc-> AHB1ENR &= ~(1 << 6);
 }
 
+void enableGpioA(){
+	rcc->AHB1RSTR &= ~(1 << 0);
+	rcc->AHB1ENR |= 1 << 0;
+}
+
+void disableGpioA(){
+	rcc-> AHB1RSTR |= 1 << 0;
+	rcc-> AHB1ENR &= ~(1 << 0);
+}

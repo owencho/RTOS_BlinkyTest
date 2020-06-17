@@ -1,6 +1,7 @@
 "Core/Src/Gpio.o"
 "Core/Src/Nvic.o"
 "Core/Src/Rcc.o"
+"Core/Src/StateMachine.o"
 "Core/Src/main.o"
 "Core/Src/stm32f4xx_hal_msp.o"
 "Core/Src/stm32f4xx_it.o"

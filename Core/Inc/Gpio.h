@@ -44,11 +44,13 @@ struct GpioRegs {
 };
 
 #define gpioG (GpioRegs*)(GPIO_G)
-
+#define gpioA (GpioRegs*)(GPIO_A)
 void gpioSetMode(GpioRegs *gpio , int pin , PinMode mode);
 void gpioSetOutputType(GpioRegs *gpio , int pin ,PinOutputType type);
 void gpioSetPinSpeed(GpioRegs *gpio , int pin , PinSpeed speed);
 void gpioWriteBit(GpioRegs *gpio , int pin , int value);
 void gpioWrite(GpioRegs *gpio , int value);
+int gpioReadBit(GpioRegs *gpio , int pin );
+void gpioToggleBit(GpioRegs *gpio , int pin );
 
 #endif /* INC_GPIO_H_ */

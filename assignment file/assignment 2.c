@@ -50,10 +50,7 @@
 int user_input;
 StateMachine state_0;
 StateMachine state_1;
-StateMachine state_2;
 StateMachine * currentState;
-uint32_t tickstart;
-uint32_t flash_delay;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -106,50 +103,39 @@ int main(void)
   gpioSetPinSpeed(gpioG,PIN_0,HIGH_SPEED);
 
   init_stateMachine (&state_0, &state_1, S0);
-  init_stateMachine (&state_1, &state_2, S1);
-  init_stateMachine (&state_2, &state_0, S2);
+  init_stateMachine (&state_1, &state_0, S1);
   currentState = &state_0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
   while (1)
   {
 	  if(gpioReadBit(gpioA, 0)){
-		  if(!tickstart)
-			  tickstart = HAL_GetTick();
-
-		  if((HAL_GetTick() - tickstart) > 500){
-		  tickstart = 0;
-			  if(gpioReadBit(gpioA, 0))
-				  currentState = nextStateMachine(currentState);
+		  HAL_Delay(50);
+		  if(gpioReadBit(gpioA, 0))
+			  currentState = nextStateMachine(currentState);
+		 	  }
+	  else{
+		  switch(currentState->value){
+			  case S0:
+				  gpioWriteBit(gpioG,PIN_13,1);
+				  HAL_Delay(100);
+				  gpioWriteBit(gpioG,PIN_13,0);
+				  HAL_Delay(100);
+			  break;
+			  case S1:
+				  gpioWriteBit(gpioG,PIN_13,0);
+			  break;
+			  default:
+				  gpioWriteBit(gpioG,PIN_13,0);
+			  break;
 		  }
 	  }
-	  switch(currentState->value){
-		  case S0:
-			  if(!flash_delay)
-				  flash_delay = HAL_GetTick();
-			  if((HAL_GetTick() - flash_delay) > 100){
-				  flash_delay = 0;
-				  gpioToggleBit(gpioG , PIN_13);
-			  }
-		  break;
-		  case S1:
-			  gpioWriteBit(gpioG,PIN_13,0);
-		  break;
-		  case S2:
-			  gpioWriteBit(gpioG,PIN_13,1);
-		  break;
-		  default:
-			  gpioWriteBit(gpioG,PIN_13,0);
-		  break;
-	  }
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	}
+  }
   /* USER CODE END 3 */
 }
 
