@@ -1,7 +1,0 @@
-Gpio.c:12:6:gpioSetPinSpeed	24	static
-Gpio.c:17:6:gpioSetMode	24	static
-Gpio.c:22:6:gpioSetOutputType	24	static
-Gpio.c:28:6:gpioWrite	16	static
-Gpio.c:32:6:gpioWriteBit	24	static
-Gpio.c:37:5:gpioReadBit	16	static
-Gpio.c:41:6:gpioToggleBit	16	static

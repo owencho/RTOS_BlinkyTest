@@ -1,4 +1,0 @@
-Rcc.c:12:6:enableGpioG	4	static
-Rcc.c:17:6:disableGpioG	4	static
-Rcc.c:22:6:enableGpioA	4	static
-Rcc.c:27:6:disableGpioA	4	static

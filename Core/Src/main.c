@@ -28,6 +28,7 @@
 #include "Common.h"
 #include "BaseAddress.h"
 #include "StateMachine.h"
+#include "Blinky.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,12 +49,7 @@
 
 /* USER CODE BEGIN PV */
 int user_input;
-StateMachine state_0;
-StateMachine state_1;
-StateMachine state_2;
-StateMachine * currentState;
-uint32_t tickstart;
-uint32_t flash_delay;
+BlinkyStateMachine * state;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,10 +101,10 @@ int main(void)
   gpioSetMode(gpioA, PIN_0, GPIO_IN);
   gpioSetPinSpeed(gpioG,PIN_0,HIGH_SPEED);
 
-  init_stateMachine (&state_0, &state_1, S0);
-  init_stateMachine (&state_1, &state_2, S1);
-  init_stateMachine (&state_2, &state_0, S2);
-  currentState = &state_0;
+  ButtonStateMachine buttonSM;
+  BlinkyStateMachine blinkySM;
+  buttonInitStateMachine(&buttonSM);
+  blinkyInitStateMachine(&blinkySM,&buttonSM);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,35 +112,9 @@ int main(void)
 
   while (1)
   {
-	  if(gpioReadBit(gpioA, 0)){
-		  if(!tickstart)
-			  tickstart = HAL_GetTick();
+	  	  handleButtonStateMachine(&buttonSM);
+	      handleBlinkyStateMachine(&blinkySM);
 
-		  if((HAL_GetTick() - tickstart) > 500){
-		  tickstart = 0;
-			  if(gpioReadBit(gpioA, 0))
-				  currentState = nextStateMachine(currentState);
-		  }
-	  }
-	  switch(currentState->value){
-		  case S0:
-			  if(!flash_delay)
-				  flash_delay = HAL_GetTick();
-			  if((HAL_GetTick() - flash_delay) > 100){
-				  flash_delay = 0;
-				  gpioToggleBit(gpioG , PIN_13);
-			  }
-		  break;
-		  case S1:
-			  gpioWriteBit(gpioG,PIN_13,0);
-		  break;
-		  case S2:
-			  gpioWriteBit(gpioG,PIN_13,1);
-		  break;
-		  default:
-			  gpioWriteBit(gpioG,PIN_13,0);
-		  break;
-	  }
 
     /* USER CODE END WHILE */
 
@@ -162,11 +132,11 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage 
+  /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -180,13 +150,13 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Activate the Over-Drive mode 
+  /** Activate the Over-Drive mode
   */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -240,7 +210,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
