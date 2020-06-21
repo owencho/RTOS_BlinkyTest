@@ -27,7 +27,7 @@
 #include "Rcc.h"
 #include "Common.h"
 #include "BaseAddress.h"
-#include "StateMachine.h"
+#include "Event.h"
 #include "Blinky.h"
 /* USER CODE END Includes */
 
@@ -112,12 +112,8 @@ int main(void)
 
   while (1)
   {
-	  	  handleButtonStateMachine(&buttonSM);
-	      handleBlinkyStateMachine(&blinkySM);
-
-
     /* USER CODE END WHILE */
-
+    //runEventQueue();
     /* USER CODE BEGIN 3 */
 	}
   /* USER CODE END 3 */
