@@ -113,7 +113,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    //runEventQueue();
+    handleButtonStateMachine(&buttonSM);
+    handleBlinkyStateMachine(&blinkySM);
     /* USER CODE BEGIN 3 */
 	}
   /* USER CODE END 3 */

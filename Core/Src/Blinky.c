@@ -4,7 +4,7 @@
 #include "Button.h"
 #include "Time.h"
 
-#define getButtonState(sm) (sm->button->buttonStatus)
+//#define getButtonState(sm) (sm->button->buttonStatus)
 
 void blinkyInitStateMachine(BlinkyStateMachine * sm,ButtonStateMachine * button){
     sm->state = LED_OFF_BUTTON_RELEASED;
@@ -28,26 +28,26 @@ void handleBlinkyStateMachine(BlinkyStateMachine * sm){
               sm->state=LED_OFF_BUTTON_RELEASED;
               break;
         	case LED_OFF_BUTTON_RELEASED:
-              if(getButtonState(sm) == PRESS){
+              if(getButtonState(sm->button) == PRESS){
                   turnLed(ON);
                   sm->state=LED_ON;
                   sm->isButtonReleased = 0;
               }
               break;
           case LED_ON:
-              if(getButtonState(sm) == RELEASE)
+              if(getButtonState(sm->button) == RELEASE)
                   sm->isButtonReleased = 1;
-              if(sm->isButtonReleased==1 && getButtonState(sm) == PRESS ){
+              if(sm->isButtonReleased==1 && getButtonState(sm->button) == PRESS ){
                   sm->currentTick = getCurrentTime();
                   sm->state=BLINK_ON;
                   sm->isButtonReleased = 0;
               }
               break;
           case BLINK_ON:
-              if(getButtonState(sm) == RELEASE)
+              if(getButtonState(sm->button) == RELEASE)
                   sm->isButtonReleased = 1;
 
-              if(sm->isButtonReleased==1 && getButtonState(sm) == PRESS ){
+              if(sm->isButtonReleased==1 && getButtonState(sm->button) == PRESS ){
                   sm->state=LED_OFF_BUTTON_HOLD;
                   turnLed(OFF);
               }
@@ -61,7 +61,7 @@ void handleBlinkyStateMachine(BlinkyStateMachine * sm){
               if(getCurrentTime(sm) == RELEASE)
                   sm->isButtonReleased = 1;
 
-              if(sm->isButtonReleased==1 && getButtonState(sm) == PRESS )
+              if(sm->isButtonReleased==1 && getButtonState(sm->button) == PRESS )
                   sm->state=LED_OFF_BUTTON_HOLD;
               else if(getCurrentTime()- sm->currentTick >= 100){
                   sm->currentTick = getCurrentTime();
@@ -70,7 +70,7 @@ void handleBlinkyStateMachine(BlinkyStateMachine * sm){
               }
               break;
           case LED_OFF_BUTTON_HOLD:
-              if(getButtonState(sm) == RELEASE)
+              if(getButtonState(sm->button) == RELEASE)
                   sm->state=LED_OFF_BUTTON_RELEASED;
               break;
     }

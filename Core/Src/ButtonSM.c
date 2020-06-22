@@ -8,6 +8,9 @@ void buttonInitStateMachine(ButtonStateMachine * sm){
     sm->currentTick = RELEASE;
 }
 
+PressReleaseState getButtonState(ButtonStateMachine * sm){
+    return sm->buttonStatus;
+}
 //pure event base void handleBlinkyStateMachine(BlinkyStateMachine * sm,Event *event)
 // pull
 void handleButtonStateMachine(ButtonStateMachine * sm){
