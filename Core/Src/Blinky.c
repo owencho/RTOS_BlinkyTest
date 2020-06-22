@@ -20,7 +20,65 @@ BlinkyStateMachine * blinkyCreateStateMachine(ButtonStateMachine * button){
 }
 
 //pure event base void handleBlinkyStateMachine(BlinkyStateMachine * sm,Event *event)
+
+Event * handleBlinkyStateMachine(BlinkyStateMachine * sm,Event *event){
+    switch(sm->state){
+          case BLINKY_START :
+              turnLed(OFF);
+              sm->state=LED_OFF_BUTTON_RELEASED;
+              break;
+        	case LED_OFF_BUTTON_RELEASED:
+              if(event->type == BUTTON_PRESSED_EVENT){
+                  turnLed(ON);
+                  sm->state=LED_ON;
+                  sm->isButtonReleased = 0;
+              }
+              break;
+          case LED_ON:
+              if(event->type == BUTTON_RELEASED_EVENT)
+                  sm->isButtonReleased = 1;
+              if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT){
+                  sm->currentTick = getCurrentTime();
+                  sm->state=BLINK_ON;
+                  sm->isButtonReleased = 0;
+              }
+              break;
+          case BLINK_ON:
+              if(event->type == BUTTON_RELEASED_EVENT)
+                  sm->isButtonReleased = 1;
+
+              if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT ){
+                  sm->state=LED_OFF_BUTTON_HOLD;
+                  turnLed(OFF);
+              }
+              else if(getCurrentTime()- sm->currentTick >= 100){
+                  sm->currentTick = getCurrentTime();
+                  sm->state=BLINK_OFF;
+                  turnLed(OFF);
+              }
+              break;
+          case BLINK_OFF:
+              if(event->type == BUTTON_RELEASED_EVENT)
+                  sm->isButtonReleased = 1;
+
+              if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT )
+                  sm->state=LED_OFF_BUTTON_HOLD;
+              else if(getCurrentTime()- sm->currentTick >= 100){
+                  sm->currentTick = getCurrentTime();
+                  sm->state=BLINK_ON;
+                  turnLed(ON);
+              }
+              break;
+          case LED_OFF_BUTTON_HOLD:
+              if(event->type == BUTTON_RELEASED_EVENT)
+                  sm->state=LED_OFF_BUTTON_RELEASED;
+              break;
+    }
+    return event;
+}
+
 // pull
+/*
 void handleBlinkyStateMachine(BlinkyStateMachine * sm){
     switch(sm->state){
           case BLINKY_START :
@@ -58,7 +116,7 @@ void handleBlinkyStateMachine(BlinkyStateMachine * sm){
               }
               break;
           case BLINK_OFF:
-              if(getCurrentTime(sm) == RELEASE)
+              if(getCurrentTime() == RELEASE)
                   sm->isButtonReleased = 1;
 
               if(sm->isButtonReleased==1 && getButtonState(sm->button) == PRESS )
@@ -75,3 +133,4 @@ void handleBlinkyStateMachine(BlinkyStateMachine * sm){
               break;
     }
 }
+*/

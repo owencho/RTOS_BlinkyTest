@@ -1,6 +1,6 @@
 #ifndef BUTTONSM_H
 #define BUTTONSM_H
-
+#include "Event.h"
 #include <stdint.h>
 typedef enum{
     RELEASE,PRESS
@@ -22,6 +22,6 @@ struct ButtonStateMachine {
 
 PressReleaseState getButtonState(ButtonStateMachine *sm);
 void buttonInitStateMachine(ButtonStateMachine * sm);
-void handleButtonStateMachine(ButtonStateMachine * sm);
+Event * handleButtonStateMachine(ButtonStateMachine * sm,Event * event);
 
 #endif // BUTTONSM_H

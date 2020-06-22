@@ -23,5 +23,5 @@ struct BlinkyStateMachine {
 
 void blinkyInitStateMachine(BlinkyStateMachine * sm,ButtonStateMachine * button);
 BlinkyStateMachine * blinkyCreateStateMachine(ButtonStateMachine * button);
-void handleBlinkyStateMachine(BlinkyStateMachine * sm);
+Event * handleBlinkyStateMachine(BlinkyStateMachine * sm,Event *event);
 #endif // BLINKY_H

@@ -24,6 +24,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Gpio.h"
+#include "Nvic.h"
+#include "Syscfg.h"
+#include "Exti.h"
 #include "Rcc.h"
 #include "Common.h"
 #include "BaseAddress.h"
@@ -50,6 +53,7 @@
 /* USER CODE BEGIN PV */
 int user_input;
 BlinkyStateMachine * state;
+Event * event;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,6 +109,15 @@ int main(void)
   BlinkyStateMachine blinkySM;
   buttonInitStateMachine(&buttonSM);
   blinkyInitStateMachine(&blinkySM,&buttonSM);
+  initEventQueue();
+  event = initEventStruct();
+
+  //enable EXTI Line0 interrupt
+  nvicEnableInterrupt(6);
+  extiSetInterruptMaskRegister(exti,PIN_0,NOT_MASKED);
+  extiSetRisingTriggerInterrupt(exti,PIN_0,RISING_ENABLED);
+  extiSetFallingTriggerInterrupt(exti,PIN_0,FALLING_ENABLED);
+  syscfgExternalInterruptConfig(syscfg,PIN_0, PORT_A);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,8 +126,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    handleButtonStateMachine(&buttonSM);
-    handleBlinkyStateMachine(&blinkySM);
+    if(deEventQueue(&event)){
+    	__disable_irq();
+        handleButtonStateMachine(&buttonSM,event);
+        handleBlinkyStateMachine(&blinkySM,event);
+        clearEventStruct(event);
+        __enable_irq();
+    }
+    else
+    	handleBlinkyStateMachine(&blinkySM,event);
+
     /* USER CODE BEGIN 3 */
 	}
   /* USER CODE END 3 */

@@ -20,8 +20,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "Exti.h"
 #include "stm32f4xx_it.h"
 #include "Event.h"
+#include "Blinky.h"
+#include "Button.h"
+#include "ButtonSM.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -183,7 +187,6 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -198,11 +201,18 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+Event event1;
+Event * eventPtr;
 void EXTI0_IRQHandler(void){
-    //_disable_irq();
-    //createEvent(Event * event,EventFnPtr * functionPtr,void * data);
-    //addEventIntoEventQueue(Event * event);
-    //_enable_irq();
+    __disable_irq();
+    if(readPhysicalButton() == 1){
+    	eventPtr = createEvent(&event1,BUTTON_PRESSED_EVENT,handleBlinkyStateMachine,NULL);
+    }
+    else
+    	eventPtr = createEvent(&event1,BUTTON_RELEASED_EVENT,handleBlinkyStateMachine,NULL);
+    addEventIntoEventQueue(eventPtr);
+    extiSetPendingRegister(exti,0);
+    return;
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

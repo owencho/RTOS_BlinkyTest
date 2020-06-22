@@ -13,10 +13,10 @@ PressReleaseState getButtonState(ButtonStateMachine * sm){
 }
 //pure event base void handleBlinkyStateMachine(BlinkyStateMachine * sm,Event *event)
 // pull
-void handleButtonStateMachine(ButtonStateMachine * sm){
+Event * handleButtonStateMachine(ButtonStateMachine * sm,Event *event){
     switch(sm->state){
           case BUTTON_RELEASED :
-              if(readPhysicalButton() == 1){
+              if(event->type == BUTTON_PRESSED_EVENT){
                   sm->state=BUTTON_PRESSED_DEBOUNCING;
                   sm->buttonStatus = PRESS;
                   sm->currentTick = getCurrentTime();
@@ -27,7 +27,7 @@ void handleButtonStateMachine(ButtonStateMachine * sm){
                   sm->state = BUTTON_PRESSED;
           break;
           case BUTTON_PRESSED:
-              if(readPhysicalButton() == 0){
+              if(event->type == BUTTON_RELEASED_EVENT){
                   sm->state=BUTTON_RELEASED_DEBOUNCING;
                   sm->buttonStatus = RELEASE;
                   sm->currentTick = getCurrentTime();
@@ -38,4 +38,6 @@ void handleButtonStateMachine(ButtonStateMachine * sm){
                   sm->state = BUTTON_RELEASED;
           break;
     }
+    event->flag =1;
+    return event;
 }
