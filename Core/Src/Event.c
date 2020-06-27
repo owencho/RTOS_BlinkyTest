@@ -1,19 +1,11 @@
 #include "Event.h"
 #include "List.h"
-
+#include "Interrupt.h"
 List * eventQueueList;
 ListItem * item;
 Event * initEventStruct(){
     Event * event = malloc(sizeof(Event));
-    event = clearEventStruct(event);
-    return event;
-}
-
-Event * clearEventStruct(Event * event){
-    event-> type = NO_EVENT;
-    event-> flag = 0;
-    event-> functionPtr = NULL;
-    event-> data = NULL;
+    //event = clearEventStruct(event);
     return event;
 }
 
@@ -22,24 +14,27 @@ void initEventQueue(){
 }
 
 
-void addEventIntoEventQueue(Event * event){
+void eventEnqueue(Event * event){
+	disableIRQ();
     listAddItemToTail(eventQueueList, (void *) event);
+    enableIRQ();
 }
-
- Event * createEvent(Event * event,EventType type,EventFnPtr * functionPtr,void * data){
+/*
+ void initEvent(Event * event,EventType type,EventFnPtr * functionPtr,void * data){
      event-> type = type;
-     event-> flag = 0;
      event-> functionPtr = functionPtr;
      event-> data = data;
-     return event;
 }
-
-int  deEventQueue(Event ** event){
-    if(eventQueueList->count ==0)
-        return 0;
+*/
+int  eventDequeue(Event ** event){
+	disableIRQ();
+  	//disable interrupt put here to protect data from race condition
+    if(eventQueueList->count ==0){
+    	enableIRQ();
+      	return 0;
+    }
     resetCurrentListItem(eventQueueList);
-    //item = getCurrentListItem(eventQueueList);
-    //*event = item->data;
     *event = deleteHeadListItem(eventQueueList);
+    enableIRQ();
     return 1;
 }

@@ -190,6 +190,7 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
+  incTick();
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -201,18 +202,27 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
-Event event1;
-Event * eventPtr;
+Event * buttonEvent;
 void EXTI0_IRQHandler(void){
-    __disable_irq();
-    if(readPhysicalButton() == 1){
-    	eventPtr = createEvent(&event1,BUTTON_PRESSED_EVENT,handleBlinkyStateMachine,NULL);
-    }
-    else
-    	eventPtr = createEvent(&event1,BUTTON_RELEASED_EVENT,handleBlinkyStateMachine,NULL);
-    addEventIntoEventQueue(eventPtr);
-    extiSetPendingRegister(exti,0);
+	buttonEventISR();
+	extiSetPendingRegister(exti,PIN_0);
+	return;
+	/*
+	if(buttonEvent != NULL){
+		if(readPhysicalButton() == 1){
+			buttonEvent = initEvent(buttonEvent,BUTTON_PRESSED_EVENT,
+									           handleButtonStateMachine,NULL);
+		}
+		else
+			buttonEvent = initEvent(buttonEvent,BUTTON_RELEASED_EVENT,
+									            handleButtonStateMachine,NULL);
+		addEventIntoEventQueue(buttonEvent);
+		buttonEvent = NULL;
+	}
+    extiSetPendingRegister(exti,PIN_0); //modify chg to extiClearPendingBit
+    //mask interrupt register
     return;
+    */
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -2,24 +2,24 @@
 #define EVENT_H
 #include <stdint.h>
 #include <stddef.h>
+#include "StateMachine.h"
 typedef enum{
     BUTTON_RELEASED_EVENT,BUTTON_PRESSED_EVENT,TIMEOUT_EVENT,NO_EVENT
 } EventType;
 
 typedef struct Event Event;
-typedef Event * (*EventFnPtr)(void * dataPtr,Event * event);
+
 struct Event {
     EventType type;
-    EventFnPtr * functionPtr;
-    uint32_t flag;
+    GenericStateMachine * stateMachine;
     void * data;
 };
 
-Event * initEventStruct();
-Event * clearEventStruct(Event * event);
+Event * createEventStruct();
 void initEventQueue();
+Event * initEventStruct();
 void addEventIntoEventQueue(Event * event);
-Event * createEvent(Event * event,EventType type,EventFnPtr * functionPtr,void * data);
-void addEventIntoEventQueue(Event * event);
-int  deEventQueue(Event ** event);
+//void initEvent(Event * event,EventType type,StateMachine * sm,void * data);
+void eventEnqueue(Event * event);
+int  eventDequeue(Event ** event);
 #endif // EVENT_H

@@ -107,10 +107,11 @@ int main(void)
 
   ButtonStateMachine buttonSM;
   BlinkyStateMachine blinkySM;
+  event = initEventStruct();
+  initEventQueue();
   buttonInitStateMachine(&buttonSM);
   blinkyInitStateMachine(&blinkySM,&buttonSM);
-  initEventQueue();
-  event = initEventStruct();
+
 
   //enable EXTI Line0 interrupt
   nvicEnableInterrupt(6);
@@ -125,16 +126,10 @@ int main(void)
 
   while (1)
   {
+	if(eventDequeue(&event))
+		  event->stateMachine->callback(event);
     /* USER CODE END WHILE */
-    if(deEventQueue(&event)){
-    	__disable_irq();
-        handleButtonStateMachine(&buttonSM,event);
-        handleBlinkyStateMachine(&blinkySM,event);
-        clearEventStruct(event);
-        __enable_irq();
-    }
-    else
-    	handleBlinkyStateMachine(&blinkySM,event);
+
 
     /* USER CODE BEGIN 3 */
 	}
