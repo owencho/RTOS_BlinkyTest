@@ -10,6 +10,7 @@
 #include "Interrupt.h"
 #include "LinkedListCompare.h"
 #include "EventCompare.h"
+uint32_t  expiryTime;
 List * eventTimerQueueList;
 ListItem * eventTimerItem;
 ListItem * currentEventTimerItem;
@@ -22,10 +23,12 @@ void timerEventStart (Event * event,uint32_t expiryPeriod){
 	timeEventPtr = event;
 	if(eventTimerQueueList->count == 0){
 		resetTick();
-		timeEventPtr->data = &expiryPeriod;
+		expiryTime = expiryPeriod;
+		timeEventPtr->data = &expiryTime;
 		eventTimerEnqueue(timeEventPtr);
 	}
 	else{
+		/*
 		disableIRQ();
 		expiryPeriod = expiryPeriod-currentTick;
 		eventTimerItem = findListItem(eventTimerQueueList,&expiryPeriod,(LinkedListCompare)eventCompareForTime);
@@ -35,6 +38,7 @@ void timerEventStart (Event * event,uint32_t expiryPeriod){
 
 		*(uint32_t*)eventTimerItem->data= *(uint32_t*)(eventTimerItem->data) - calculatedTime;
 	    enableIRQ();
+	    */
 	}
 }
 
@@ -70,7 +74,8 @@ void eventTimerDequeue(){
 void timerEventISR(){
 	Event * eventFromQueue;
 	uint32_t * timePtr;
-    if(timeEventPtr != NULL){
+	disableIRQ();
+    if(timeEventPtr != NULL && eventTimerQueueList->count !=0){
     	//reset linkedList
     	resetCurrentListItem(eventTimerQueueList);
     	// get the timevalue head item
@@ -83,8 +88,8 @@ void timerEventISR(){
       		eventEnqueue(timeEventPtr);
       		eventTimerDequeue();
       		resetTick();
-      	}
-
+     }
+	enableIRQ();
 
         //buttonEventPtr = NULL;
     }
