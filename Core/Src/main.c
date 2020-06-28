@@ -107,11 +107,13 @@ int main(void)
 
   ButtonStateMachine buttonSM;
   BlinkyStateMachine blinkySM;
+  // init for normal event
   event = initEventStruct();
   initEventQueue();
   buttonInitStateMachine(&buttonSM);
   blinkyInitStateMachine(&blinkySM,&buttonSM);
-
+  // init for timer event
+  initEventTimerQueue();
 
   //enable EXTI Line0 interrupt
   nvicEnableInterrupt(6);

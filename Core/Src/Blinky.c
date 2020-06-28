@@ -4,15 +4,16 @@
 #include "Button.h"
 #include "ButtonSM.h"
 #include "Time.h"
+#include "TimerEvent.h"
 
 
 void blinkyInitStateMachine(BlinkyStateMachine * sm,ButtonStateMachine * button){
     sm->state = LED_OFF_BUTTON_RELEASED;
     sm->currentTick = 0;
     sm->isButtonReleased = 0;
-    sm->callback = handleBlinkyStateMachine;
-    sm->blinkyEvent.stateMachine= sm;
-    sm->timerEvent.stateMachine = sm;
+    sm->callback =(Callback) handleBlinkyStateMachine;
+    sm->blinkyEvent.stateMachine= (GenericStateMachine *)sm;
+    sm->timerEvent.stateMachine = (GenericStateMachine *)sm;
     buttonEventRequest(&sm->blinkyEvent  ,PRESS);
 }
 
@@ -44,7 +45,7 @@ void handleBlinkyStateMachine(Event *event){
             if(event->type == BUTTON_RELEASED_EVENT)
                 sm->isButtonReleased = 1;
             if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT){
-                //timerEventStart(sm->timerEvent,100);
+            	timerEventStart(&sm->timerEvent,100);
                 sm->state=BLINK_ON;
                 sm->isButtonReleased = 0;
                 break;
@@ -61,7 +62,7 @@ void handleBlinkyStateMachine(Event *event){
                 break;
             }
             else if(event->type == TIMEOUT_EVENT){
-                //timerEventStart(sm->timerEvent,100);
+            	timerEventStart(&sm->timerEvent,100);
                 //sm->currentTick = getCurrentTime();
                 sm->state=BLINK_OFF;
                 turnLed(OFF);
@@ -79,7 +80,7 @@ void handleBlinkyStateMachine(Event *event){
             	  break;
             }
             else if(event->type == TIMEOUT_EVENT){
-                //timerEventStart(&sm->timerEvent,100);
+            	timerEventStart(&sm->timerEvent,100);
                 sm->state=BLINK_ON;
                 turnLed(ON);
                 break;

@@ -1,7 +1,7 @@
 #include "ButtonSM.h"
 #include "Button.h"
 #include"Time.h"
-
+#include"TimerEvent.h"
 static Event * buttonEventPtr;
 static PressReleaseState expectedButtonState;
 
@@ -9,8 +9,8 @@ void buttonInitStateMachine(ButtonStateMachine * sm){
     sm->callback =(void*) handleButtonStateMachine;
     sm->state = BUTTON_RELEASED;
     sm->buttonStatus = RELEASE;
-    sm->buttonEvent.stateMachine = sm;
-    sm->timerEvent.stateMachine = sm;
+    sm->buttonEvent.stateMachine =(GenericStateMachine *) sm;
+    sm->timerEvent.stateMachine = (GenericStateMachine *)sm;
     rawButtonEventRequest(&sm->buttonEvent,PRESS);
     //eventRequest for PRESS button
 }
@@ -28,7 +28,7 @@ void handleButtonStateMachine(Event *event){
 					eventEnqueue(buttonEventPtr);
 					buttonEventPtr = NULL;
 					sm->state=BUTTON_PRESSED_DEBOUNCING;
-					//timerEventRequest(&sm->timerEvent,100);
+					timerEventStart(&sm->timerEvent,100);
             	}
 ;
             }
@@ -44,7 +44,7 @@ void handleButtonStateMachine(Event *event){
 				eventEnqueue(buttonEventPtr);
 				buttonEventPtr = NULL;
 				sm->state=BUTTON_RELEASED_DEBOUNCING;
-				//timerEventRequest(&sm->timerEvent,100);
+				timerEventStart(&sm->timerEvent,100);
 			}
         break;
         case BUTTON_RELEASED_DEBOUNCING:

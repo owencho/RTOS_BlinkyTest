@@ -4,35 +4,42 @@
  *  Created on: Jun 25, 2020
  *      Author: academic
  */
-
+#include "TimerEvent.h"
 #include "Event.h"
 #include "List.h"
 #include "Interrupt.h"
+#include "LinkedListCompare.h"
+#include "EventCompare.h"
 List * eventTimerQueueList;
 ListItem * eventTimerItem;
-Event * timeEvent;
-int currentTick,calculatedTime;
+ListItem * currentEventTimerItem;
+Event * timeEventPtr;
+int currentTick,calculatedTime,nextCalculatedTime;
 void initEventTimerQueue(){
-    eventQueueList = createList();
+	eventTimerQueueList = createList();
 }
-void timerEventRequest (Event * event,uint32_t time){
-	timeEvent = event;
-	if(eventQueueList->count == 0){
+void timerEventStart (Event * event,uint32_t expiryPeriod){
+	timeEventPtr = event;
+	if(eventTimerQueueList->count == 0){
 		resetTick();
-		timeEvent->data = time;
-		listAddItemToHead(eventTimerQueueList,(void)timeEvent);
+		timeEventPtr->data = &expiryPeriod;
+		eventTimerEnqueue(timeEventPtr);
 	}
 	else{
-		eventTimerItem = findListItem(eventTimerQueueList,time,timeQueueCompare );
-		calculatedTime = currentTick + time - (int)(event->data);
-		eventTimerQueueList=listAddItemToNext(eventTimerQueueList, eventTimerItem,calculatedTime );
+		disableIRQ();
+		expiryPeriod = expiryPeriod-currentTick;
+		eventTimerItem = findListItem(eventTimerQueueList,&expiryPeriod,(LinkedListCompare)eventCompareForTime);
+		calculatedTime = currentTick + expiryPeriod - (int)(event->data);
+		timeEventPtr->data = (void*)&calculatedTime;
+		eventTimerQueueList=listAddItemToNext(eventTimerQueueList, eventTimerItem,(void*)timeEventPtr);
+
+		*(uint32_t*)eventTimerItem->data= *(uint32_t*)(eventTimerItem->data) - calculatedTime;
+	    enableIRQ();
 	}
-
-
 }
 
 void incTick(){
-	if(eventQueueList->count != 0)
+	if(eventTimerQueueList->count != 0)
 		currentTick++;
 }
 
@@ -43,6 +50,43 @@ void resetTick(){
 }
 void eventTimerEnqueue(Event * event){
 	disableIRQ();
-    listAddItemToTail(eventQueueList, (void *) event);
+    listAddItemToTail(eventTimerQueueList, (void *) event);
     enableIRQ();
 }
+
+void eventTimerDequeue(){
+		disableIRQ();
+	  	//disable interrupt put here to protect data from race condition
+	    if(eventTimerQueueList->count ==0){
+	    	enableIRQ();
+	      	return ;
+	    }
+	    resetCurrentListItem(eventTimerQueueList);
+	    deleteHeadListItem(eventTimerQueueList);
+	    enableIRQ();
+	    return ;
+}
+
+void timerEventISR(){
+	Event * eventFromQueue;
+	uint32_t * timePtr;
+    if(timeEventPtr != NULL){
+    	//reset linkedList
+    	resetCurrentListItem(eventTimerQueueList);
+    	// get the timevalue head item
+    	currentEventTimerItem=getCurrentListItem(eventTimerQueueList);
+    	eventFromQueue = currentEventTimerItem->data;
+    	timePtr = (uint32_t*)eventFromQueue->data;
+      	if(*timePtr == currentTick){
+      		timeEventPtr = currentEventTimerItem->data;
+      		timeEventPtr->type = TIMEOUT_EVENT;
+      		eventEnqueue(timeEventPtr);
+      		eventTimerDequeue();
+      		resetTick();
+      	}
+
+
+        //buttonEventPtr = NULL;
+    }
+}
+

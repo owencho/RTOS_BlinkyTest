@@ -12,8 +12,10 @@
 #include <stdint.h>
 
 void timerEventStart(Event*timerEvent,uint32_t expiryPeriod);
-Event * timerEventDequeue(Event * timerEvent);
-Event * timerEventEnqueue(Event * timerEvent);
-
-
+void initEventTimerQueue();
+void resetTick();
+void incTick();
+void eventTimerEnqueue(Event * event);
+void eventTimerDequeue();
+void timerEventISR();
 #endif /* INC_TIMEREVENT_H_ */
