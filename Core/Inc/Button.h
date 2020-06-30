@@ -7,6 +7,6 @@ typedef enum{
 } PressReleaseState;
 
 int readPhysicalButton();
-void rawButtonEventRequest(Event * event,PressReleaseState state);
+void rawButtonEventRequest(Event * event,EventType state);
 void buttonEventISR();
 #endif // BUTTON_H

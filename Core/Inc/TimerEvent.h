@@ -11,6 +11,13 @@
 #include "Event.h"
 #include <stdint.h>
 
+struct EventTimer {
+	ListItem * next;
+    EventType type;
+    GenericStateMachine * stateMachine;
+    int data;
+};
+
 void timerEventStart(Event*timerEvent,uint32_t expiryPeriod);
 void initEventTimerQueue();
 void resetTick();

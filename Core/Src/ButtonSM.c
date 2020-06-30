@@ -26,17 +26,17 @@ void handleButtonStateMachine(Event *event){
             if(event->type == BUTTON_PRESSED_EVENT){
             	if(buttonEventPtr !=NULL && expectedButtonState ==PRESS){
 					eventEnqueue(buttonEventPtr);
-					//buttonEventPtr = NULL;
+					buttonEventPtr = NULL;
 					sm->state=BUTTON_PRESSED_DEBOUNCING;
 					timerEventStart(&sm->timerEvent,100);
             	}
-;
             }
         break;
       	case BUTTON_PRESSED_DEBOUNCING:
             if(event->type == TIMEOUT_EVENT){
             	buttonEventPtr->type = BUTTON_PRESSED_EVENT;
             	eventEnqueue(buttonEventPtr);
+            	rawButtonEventRequest(buttonEventPtr ,BUTTON_RELEASED_EVENT);
             	buttonEventPtr = NULL;
                 sm->state = BUTTON_PRESSED;
             }
@@ -67,5 +67,5 @@ void handleButtonStateMachine(Event *event){
 void buttonEventRequest(Event * event ,PressReleaseState state){
   	buttonEventPtr = event;
   	expectedButtonState = state;
-  	rawButtonEventRequest(event ,state);
+  	//rawButtonEventRequest(event ,state);
 }
