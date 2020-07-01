@@ -14,12 +14,14 @@
 #include "mock_Led.h"
 ButtonStateMachine buttonSM;
 BlinkyStateMachine blinkySM;
-Event evt ,timerEvent,buttonEvent;
+Event evt ,buttonEvent;
+TimerEvent timerEvent;
 Event evtForBlinky;
 void setUp(void){}
 void tearDown(void){}
+
 void initButtonSM(ButtonStateMachine * sm, Callback callback,ButtonState state,
-              PressReleaseState buttonStatus,Event timerEvent,Event buttonEvent){
+              PressReleaseState buttonStatus,TimerEvent timerEvent,Event buttonEvent){
     sm->callback = callback;
     sm->state = state;
     sm->buttonStatus = buttonStatus;
@@ -72,7 +74,7 @@ void test_ButtonInitStateMachine_released_state_with_request_from_blinky(void){
     initEvent(&evtForBlinky,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     buttonEventRequest(&evtForBlinky,PRESS);
 
-    timerEventStart_Expect(&buttonSM.timerEvent,100);
+    timerEventRequest_Expect(&buttonSM.timerEvent,100);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_PRESSED_DEBOUNCING);
 }
@@ -140,7 +142,7 @@ void test_ButtonInitStateMachine_BUTTON_PRESSED_requested_by_blinky(void){
     initEvent(&evtForBlinky,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     buttonEventRequest(&evtForBlinky,RELEASE);
 
-    timerEventStart_Expect(&buttonSM.timerEvent,100);
+    timerEventRequest_Expect(&buttonSM.timerEvent,100);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_RELEASED_DEBOUNCING);
 }

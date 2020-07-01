@@ -9,6 +9,7 @@
 #define INC_EVENTCOMPARE_H_
 #include "Event.h"
 #include <stdlib.h>
-int eventCompareForTime (Event *event, uint32_t * time);
+#include "TimerEvent.h"
+int eventCompareForTime (TimerEvent *currentEvent, TimerEvent * newEvent);
 
 #endif /* INC_EVENTCOMPARE_H_ */

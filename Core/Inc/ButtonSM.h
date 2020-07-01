@@ -5,7 +5,7 @@
 #include "Button.h"
 #include <stdint.h>
 #include "StateMachine.h"
-
+#include "TimerEvent.h"
 typedef enum{
     BUTTON_RELEASED,
     BUTTON_PRESSED_DEBOUNCING,
@@ -18,7 +18,7 @@ struct ButtonStateMachine {
     Callback callback;
     ButtonState state;
     PressReleaseState buttonStatus;
-    Event timerEvent;
+    TimerEvent timerEvent;
     Event buttonEvent;
 };
 

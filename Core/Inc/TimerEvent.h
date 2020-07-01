@@ -11,18 +11,20 @@
 #include "Event.h"
 #include <stdint.h>
 
-struct EventTimer {
-	ListItem * next;
+typedef struct TimerEvent TimerEvent;
+struct TimerEvent {
+		TimerEvent * next;
     EventType type;
     GenericStateMachine * stateMachine;
     int data;
+		int accumulativeTime;
 };
 
-void timerEventStart(Event*timerEvent,uint32_t expiryPeriod);
-void initEventTimerQueue();
+void timerEventRequest (TimerEvent * event,int expiryPeriod);
+void initTimerEventQueue();
 void resetTick();
 void incTick();
-void eventTimerEnqueue(Event * event);
-void eventTimerDequeue();
+void TimerEventEnqueue(TimerEvent * event);
+void TimerEventDequeue();
 void timerEventISR();
 #endif /* INC_TIMEREVENT_H_ */

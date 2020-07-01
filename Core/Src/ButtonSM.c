@@ -1,6 +1,7 @@
 #include "ButtonSM.h"
 #include "Button.h"
-#include"Time.h"
+#include "Time.h"
+#include "Event.h"
 #include"TimerEvent.h"
 #include <stdint.h>
 static Event * buttonEventPtr;
@@ -33,7 +34,7 @@ void handleButtonStateMachine(Event *event){
             if(event->type == BUTTON_PRESSED_EVENT){
               	if(buttonEventPtr !=NULL && expectedButtonState ==PRESS){
           					sm->state=BUTTON_PRESSED_DEBOUNCING;
-          					timerEventStart(&sm->timerEvent,100);
+          					timerEventRequest(&sm->timerEvent,100);
               	}
             }
         break;
@@ -51,7 +52,7 @@ void handleButtonStateMachine(Event *event){
           	if(event->type == BUTTON_RELEASED_EVENT){
         				if(buttonEventPtr !=NULL && expectedButtonState == RELEASE){
           					sm->state=BUTTON_RELEASED_DEBOUNCING;
-          					timerEventStart(&sm->timerEvent,100);
+          					timerEventRequest(&sm->timerEvent,100);
         				}
           	}
         break;

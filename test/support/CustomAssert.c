@@ -68,3 +68,62 @@ void assertEqualListItem (const ListItem * actualListItem,
        UNITY_TEST_FAIL(lineNumber,msg);
     }
 }
+
+void assertEqualTimerEvent (const TimerEvent * actualListItem,
+                            const TimerEvent * next,
+                            const EventType type,
+                      	    const GenericStateMachine * stateMachine,
+                            const int data,
+                            const int accumulativeTime,
+                            const UNITY_LINE_TYPE lineNumber){
+
+    char msg[1024];
+    int length;
+    int i;
+
+    if(actualListItem == NULL){
+         UNITY_TEST_FAIL(lineNumber,"The actual listItem is NULL");
+     }
+    if(actualListItem->next != next){
+       if(next == NULL){
+           sprintf(msg,"the next ListItem is not NULL");
+       }
+       else if(actualListItem->next == NULL){
+           sprintf(msg,"the actual next ListItem is NULL ");
+       }
+       else{
+           sprintf(msg,"the next ListItem is different with expected next ListItem");
+       }
+       UNITY_TEST_FAIL(lineNumber,msg);
+    }
+
+    if(actualListItem->type != type){
+           sprintf(msg,"the actual ListItem Event type is different with expected listItem Type");
+       UNITY_TEST_FAIL(lineNumber,msg);
+    }
+
+    if(actualListItem->stateMachine != stateMachine){
+       if(stateMachine == NULL){
+           sprintf(msg,"the expected stateMachine in ListItem is not NULL");
+       }
+       else if(actualListItem->stateMachine == NULL){
+           sprintf(msg,"the actual stateMachine in ListItem is NULL");
+       }
+       else{
+           sprintf(msg,"the actual stateMachine in ListItem is different with expected stateMachine in ListItem");
+       }
+       UNITY_TEST_FAIL(lineNumber,msg);
+    }
+
+    if(actualListItem->data != data){
+        sprintf(msg,"the actual time (%d) is different with expected time (%d)",actualListItem->data ,data);
+        UNITY_TEST_FAIL(lineNumber,msg);
+    }
+
+    if(actualListItem->accumulativeTime != accumulativeTime){
+        sprintf(msg,"the actual accumulativeTime time (%d) is different with expected accumulativeTime (%d)"
+        ,actualListItem->accumulativeTime ,accumulativeTime);
+        UNITY_TEST_FAIL(lineNumber,msg);
+    }
+
+}

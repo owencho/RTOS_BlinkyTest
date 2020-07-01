@@ -5,6 +5,7 @@
 #include "Event.h"
 #include "ButtonSM.h"
 #include "StateMachine.h"
+#include "TimerEvent.h"
 typedef enum{
     BLINKY_START,
     LED_OFF_BUTTON_RELEASED,
@@ -18,14 +19,13 @@ typedef struct BlinkyStateMachine BlinkyStateMachine;
 struct BlinkyStateMachine {
   	Callback callback;
   	BlinkyState state;
-  	uint32_t currentTick;
+  	//uint32_t currentTick;
   	uint32_t isButtonReleased;
     ButtonStateMachine * button;
-    Event timerEvent;
+    TimerEvent timerEvent;
     Event blinkyEvent;
 };
 
 void blinkyInitStateMachine(BlinkyStateMachine * sm,ButtonStateMachine * button);
-BlinkyStateMachine * blinkyCreateStateMachine(ButtonStateMachine * button);
 void handleBlinkyStateMachine(Event *event);
 #endif // BLINKY_H

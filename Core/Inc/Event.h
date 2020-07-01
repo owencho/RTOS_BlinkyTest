@@ -14,10 +14,6 @@ struct Event {
     void * data;
 };
 
-Event * createEventStruct();
-void initEventQueue();
-Event * initEventStruct();
-void addEventIntoEventQueue(Event * event);
 //void initEvent(Event * event,EventType type,StateMachine * sm,void * data);
 void eventEnqueue(Event * event);
 int  eventDequeue(Event ** event);

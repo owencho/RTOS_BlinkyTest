@@ -9,7 +9,7 @@ void eventEnqueue(Event * event){
 				enableIRQ();
 				return;
 		}
-    listAddItemToTail(&eventQueueList,(ListItem * )event);
+    listAddItemToTail(&eventQueueList,(ListItem *)event);
     enableIRQ();
 }
 

@@ -6,18 +6,11 @@
  */
 
 #include "EventCompare.h"
-uint32_t accumulativeTime = 0;
-uint32_t * eventTime;
-int eventCompareForTime (Event *event, uint32_t * time){
-	eventTime = event->data;
-    if((accumulativeTime + *eventTime) >= *time){
+int eventCompareForTime (TimerEvent *currentEvent, TimerEvent * newEvent){
+		if(currentEvent->next == NULL)
+				return 1 ;
+		else if(currentEvent->next->accumulativeTime >= newEvent->data )
+    		return 1;
+    else
     	return 0;
-    }
-    else if ((accumulativeTime +*eventTime) < *time){
-    	accumulativeTime = accumulativeTime+ *eventTime;
-    	return -1;
-    }
-    return 1;
 }
-
-
