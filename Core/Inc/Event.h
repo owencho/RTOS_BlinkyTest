@@ -4,16 +4,13 @@
 #include <stddef.h>
 #include "StateMachine.h"
 #include "ListItem.h"
-typedef enum{
-    BUTTON_RELEASED_EVENT,BUTTON_PRESSED_EVENT,TIMEOUT_EVENT,NO_EVENT
-} EventType;
 
 typedef struct Event Event;
 
 struct Event {
-	ListItem * next;
-	EventType type;
-	GenericStateMachine * stateMachine;
+  	ListItem * next;
+  	EventType type;
+  	GenericStateMachine * stateMachine;
     void * data;
 };
 

@@ -24,40 +24,35 @@ void handleButtonStateMachine(Event *event){
     switch(sm->state){
         case BUTTON_RELEASED :
             if(event->type == BUTTON_PRESSED_EVENT){
-            	if(buttonEventPtr !=NULL && expectedButtonState ==PRESS){
-					eventEnqueue(buttonEventPtr);
-					buttonEventPtr = NULL;
-					sm->state=BUTTON_PRESSED_DEBOUNCING;
-					timerEventStart(&sm->timerEvent,100);
-            	}
+              	if(buttonEventPtr !=NULL && expectedButtonState ==PRESS){
+          					sm->state=BUTTON_PRESSED_DEBOUNCING;
+          					timerEventStart(&sm->timerEvent,100);
+              	}
             }
         break;
       	case BUTTON_PRESSED_DEBOUNCING:
             if(event->type == TIMEOUT_EVENT){
-            	buttonEventPtr->type = BUTTON_PRESSED_EVENT;
-            	eventEnqueue(buttonEventPtr);
-            	rawButtonEventRequest(buttonEventPtr ,BUTTON_RELEASED_EVENT);
-            	buttonEventPtr = NULL;
+              	buttonEventPtr->type = BUTTON_PRESSED_EVENT;
+              	eventEnqueue(buttonEventPtr);
+              	rawButtonEventRequest(buttonEventPtr ,BUTTON_RELEASED_EVENT);
+              	buttonEventPtr = NULL;
                 sm->state = BUTTON_PRESSED;
             }
 
         break;
         case BUTTON_PRESSED:
-        	if(event->type == BUTTON_PRESSED_EVENT){
-				if(buttonEventPtr !=NULL && expectedButtonState ==RELEASE){
-					//buttonEventPtr->type = BUTTON_RELEASED_EVENT;
-					eventEnqueue(buttonEventPtr);
-					//buttonEventPtr = NULL;
-					sm->state=BUTTON_RELEASED_DEBOUNCING;
-					timerEventStart(&sm->timerEvent,100);
-				}
-        	}
+          	if(event->type == BUTTON_PRESSED_EVENT){
+        				if(buttonEventPtr !=NULL && expectedButtonState ==RELEASE){
+          					sm->state=BUTTON_RELEASED_DEBOUNCING;
+          					timerEventStart(&sm->timerEvent,100);
+        				}
+          	}
         break;
         case BUTTON_RELEASED_DEBOUNCING:
             if(event->type == TIMEOUT_EVENT){
-            	buttonEventPtr->type=BUTTON_RELEASED_EVENT;
-            	eventEnqueue(buttonEventPtr);
-            	buttonEventPtr = NULL;
+              	buttonEventPtr->type=BUTTON_RELEASED_EVENT;
+              	eventEnqueue(buttonEventPtr);
+              	buttonEventPtr = NULL;
                 sm->state = BUTTON_RELEASED;
             }
         break;
@@ -67,5 +62,5 @@ void handleButtonStateMachine(Event *event){
 void buttonEventRequest(Event * event ,PressReleaseState state){
   	buttonEventPtr = event;
   	expectedButtonState = state;
-  	//rawButtonEventRequest(event ,state);
+
 }
