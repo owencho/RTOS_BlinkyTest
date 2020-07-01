@@ -2,10 +2,14 @@
 #include "Button.h"
 #include"Time.h"
 #include"TimerEvent.h"
+#include <stdint.h>
 static Event * buttonEventPtr;
 static PressReleaseState expectedButtonState;
 
 void buttonInitStateMachine(ButtonStateMachine * sm){
+    if(sm== NULL){
+        return ;
+    }
     sm->callback =(void*) handleButtonStateMachine;
     sm->state = BUTTON_RELEASED;
     sm->buttonStatus = RELEASE;
@@ -21,6 +25,9 @@ PressReleaseState getButtonState(ButtonStateMachine * sm){
 //pure event base void handleBlinkyStateMachine(BlinkyStateMachine * sm,Event *event)
 void handleButtonStateMachine(Event *event){
     ButtonStateMachine * sm = (ButtonStateMachine*) event->stateMachine;
+    if(event == NULL){
+      return;
+    }
     switch(sm->state){
         case BUTTON_RELEASED :
             if(event->type == BUTTON_PRESSED_EVENT){
@@ -41,8 +48,8 @@ void handleButtonStateMachine(Event *event){
 
         break;
         case BUTTON_PRESSED:
-          	if(event->type == BUTTON_PRESSED_EVENT){
-        				if(buttonEventPtr !=NULL && expectedButtonState ==RELEASE){
+          	if(event->type == BUTTON_RELEASED_EVENT){
+        				if(buttonEventPtr !=NULL && expectedButtonState == RELEASE){
           					sm->state=BUTTON_RELEASED_DEBOUNCING;
           					timerEventStart(&sm->timerEvent,100);
         				}
@@ -52,6 +59,7 @@ void handleButtonStateMachine(Event *event){
             if(event->type == TIMEOUT_EVENT){
               	buttonEventPtr->type=BUTTON_RELEASED_EVENT;
               	eventEnqueue(buttonEventPtr);
+                rawButtonEventRequest(buttonEventPtr ,BUTTON_PRESSED_EVENT);
               	buttonEventPtr = NULL;
                 sm->state = BUTTON_RELEASED;
             }

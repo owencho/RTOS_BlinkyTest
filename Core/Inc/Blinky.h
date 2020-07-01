@@ -6,12 +6,12 @@
 #include "ButtonSM.h"
 #include "StateMachine.h"
 typedef enum{
-  BLINKY_START,
-  LED_OFF_BUTTON_RELEASED,
-  LED_ON,
-  BLINK_ON,
-  BLINK_OFF,
-  LED_OFF_BUTTON_HOLD,
+    BLINKY_START,
+    LED_OFF_BUTTON_RELEASED,
+    LED_ON,
+    BLINK_ON,
+    BLINK_OFF,
+    LED_OFF_BUTTON_HOLD,
 } BlinkyState;
 
 typedef struct BlinkyStateMachine BlinkyStateMachine;

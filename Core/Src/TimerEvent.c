@@ -7,7 +7,7 @@
 #include "TimerEvent.h"
 #include "Event.h"
 #include "List.h"
-#include "Interrupt.h"
+#include "Hardware.h"
 #include "LinkedListCompare.h"
 #include "EventCompare.h"
 

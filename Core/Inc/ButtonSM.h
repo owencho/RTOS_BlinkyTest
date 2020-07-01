@@ -26,6 +26,7 @@ PressReleaseState getButtonState(ButtonStateMachine *sm);
 void buttonInitStateMachine(ButtonStateMachine * sm);
 void handleButtonStateMachine(Event * event);
 void buttonEventRequest(Event * event ,PressReleaseState state);
+int convertEventTypeintoButtonState(EventType state);
 //button event goes isr
 //timer event isr
 #endif // BUTTONSM_H

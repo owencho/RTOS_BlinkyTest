@@ -38,7 +38,6 @@
   :source:
     - Core/Src/**
     - STM32F429_hardware/src/**
-    - LinkedList/src/**
   :support:
     - test/support
   :libraries: []
