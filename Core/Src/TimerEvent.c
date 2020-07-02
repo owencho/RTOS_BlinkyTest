@@ -77,16 +77,28 @@ void TimerEventEnqueue(TimerEvent * event){
 }
 
 void TimerEventDequeue(){
-		disableIRQ();
+		//disableIRQ();
   	//disable interrupt put here to protect data from race condition
  		if(timerEventQueueList.count ==0){
-    		enableIRQ();
+    		//enableIRQ();
       	return ;
     }
     resetCurrentListItem(&timerEventQueueList);
     deleteHeadListItem(&timerEventQueueList);
-    enableIRQ();
+    //enableIRQ();
     return ;
+}
+void checkNextEventTimerIsZero(List * timerEventQueue){
+		TimerEvent * nextTimerEventItem;
+		nextTimerEventItem=(TimerEvent*)getNextListItem(&timerEventQueueList);
+		while(nextTimerEventItem != NULL){
+				if(currentTimerEventItem->data == 0){
+						nextTimerEventItem->type = TIMEOUT_EVENT;
+						eventEnqueue((Event*)nextTimerEventItem);
+						TimerEventDequeue();
+						nextTimerEventItem=(TimerEvent*)getNextListItem(&timerEventQueueList);
+				}
+		}
 }
 
 void timerEventISR(){
@@ -98,12 +110,14 @@ void timerEventISR(){
 	    	resetCurrentListItem(&timerEventQueueList);
 	    	// get the timevalue head item
 	    	currentTimerEventItem=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
-      	if(currentTimerEventItem->data == currentTick){
+      	if(currentTimerEventItem->accumulativeTime >= currentTick){
 	      		currentTimerEventItem->type = TIMEOUT_EVENT;
 	      		eventEnqueue((Event*)currentTimerEventItem);
 	      		TimerEventDequeue();
-	      		resetTick();
+						checkNextEventTimerIsZero(&timerEventQueueList);
+						if(timerEventQueueList.count ==0)
+								resetTick;
      		}
-			 enableIRQ();
     }
+	 enableIRQ();
 }

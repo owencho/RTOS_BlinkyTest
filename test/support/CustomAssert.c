@@ -9,7 +9,7 @@
 #define _STRINGIFY(x)     #x
 #define STRINGIFY(x)     _STRINGIFY(x)
 
-
+/*
 void assertEqualListItem (const ListItem * actualListItem,
                           const ListItem * next,
                           const EventType type,
@@ -68,7 +68,7 @@ void assertEqualListItem (const ListItem * actualListItem,
        UNITY_TEST_FAIL(lineNumber,msg);
     }
 }
-
+*/
 void assertEqualTimerEvent (const TimerEvent * actualListItem,
                             const TimerEvent * next,
                             const EventType type,

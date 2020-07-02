@@ -7,8 +7,6 @@ typedef struct ListItem ListItem ;
 
 struct ListItem{
     ListItem * next ;
-    EventType type ;
-    GenericStateMachine * stateMachine;
     void * data ;
 };
 

@@ -14,9 +14,9 @@
 typedef struct TimerEvent TimerEvent;
 struct TimerEvent {
 		TimerEvent * next;
-    EventType type;
-    GenericStateMachine * stateMachine;
     int data;
+		EventType type;
+		GenericStateMachine * stateMachine;
 		int accumulativeTime;
 };
 
