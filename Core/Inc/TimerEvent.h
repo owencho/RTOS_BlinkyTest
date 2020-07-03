@@ -24,9 +24,9 @@ void timerEventRequest (TimerEvent * event,int expiryPeriod);
 void initTimerEventQueue();
 void resetTick();
 void incTick();
-void timerEventDequeue();
+void * timerEventDequeue();
 void timerEventEnqueue(TimerEvent * event);
 void timerEventISR();
-void checkNextEventTimerIsZero(List * timerEventQueue);
+void checkAndDequeueIfNextEventTimerIsZero();
 void checkAndAddTimerEvent(TimerEvent * event);
 #endif /* INC_TIMEREVENT_H_ */

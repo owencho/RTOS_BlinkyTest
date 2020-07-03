@@ -39,25 +39,29 @@ void checkAndAddTimerEvent(TimerEvent * event){
 				listAddItemToHead(&timerEventQueueList,(ListItem*)event);
 		}
 		else{
-				timerEventItem = (TimerEvent*)findListItem(&timerEventQueueList,event,(LinkedListCompare)eventCompareForTime);
+				timerEventItem = (TimerEvent*)findListItem(&timerEventQueueList,event,
+																									(LinkedListCompare)eventCompareForTime);
 				// new time delay for next Time Event is old time delay - previous delay time
 				if(timerEventItem->next != NULL)
 						timerEventItem->next->time = timerEventItem->next->time - event->time ;
 
-				listAddItemToNext(&timerEventQueueList,(ListItem*)timerEventItem,(ListItem*)event);
+				listAddItemToNext(&timerEventQueueList,
+													(ListItem*)timerEventItem,(ListItem*)event);
 		}
 }
-void timerEventDequeue(){
+void * timerEventDequeue(){
+		TimerEvent * deletedTimerEventItem;
 		disableIRQ();
   	//disable interrupt put here to protect data from race condition
  		if(timerEventQueueList.count ==0){
     		enableIRQ();
-      	return ;
+      	return NULL;
     }
     resetCurrentListItem(&timerEventQueueList);
+		deletedTimerEventItem =(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     deleteHeadListItem(&timerEventQueueList);
     enableIRQ();
-    return ;
+    return deletedTimerEventItem;
 }
 
 void timerEventRequest (TimerEvent * event,int expiryPeriod){
@@ -83,17 +87,23 @@ void timerEventEnqueue(TimerEvent * event){
 		enableIRQ();
 }
 
-void checkNextEventTimerIsZero(List * timerEventQueue){
+void checkAndDequeueIfNextEventTimerIsZero(){
 		TimerEvent * nextTimerEventItem;
+		resetCurrentListItem(&timerEventQueueList);
 		nextTimerEventItem=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
 		while(nextTimerEventItem != NULL){
-				if(currentTimerEventItem->time == 0){
+				if(nextTimerEventItem->time == 0){
+						nextTimerEventItem =timerEventDequeue();
 						nextTimerEventItem->type = TIMEOUT_EVENT;
 						eventEnqueue((Event*)nextTimerEventItem);
-						timerEventDequeue();
-						nextTimerEventItem=(TimerEvent*)getNextListItem(&timerEventQueueList);
 				}
+				nextTimerEventItem=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
+				if(nextTimerEventItem == NULL)
+						break;
+				else if (nextTimerEventItem-> time != 0)
+						break;
 		}
+		resetCurrentListItem(&timerEventQueueList);
 }
 
 void timerEventISR(){
@@ -106,11 +116,11 @@ void timerEventISR(){
 	    	// get the timevalue head item
 	    	currentTimerEventItem=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
       	if(currentTimerEventItem->time == currentTick){
+	      		currentTimerEventItem = timerEventDequeue();
 	      		currentTimerEventItem->type = TIMEOUT_EVENT;
 	      		eventEnqueue((Event*)currentTimerEventItem);
-	      		timerEventDequeue();
 						resetTick();
-						checkNextEventTimerIsZero(&timerEventQueueList);
+						checkAndDequeueIfNextEventTimerIsZero();
      		}
     }
 	 enableIRQ();
