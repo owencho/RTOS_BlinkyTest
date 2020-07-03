@@ -9,22 +9,24 @@
 #define INC_TIMEREVENT_H_
 
 #include "Event.h"
+#include "List.h"
 #include <stdint.h>
 
 typedef struct TimerEvent TimerEvent;
 struct TimerEvent {
 		TimerEvent * next;
-    int data;
+    int time;
 		EventType type;
 		GenericStateMachine * stateMachine;
-		int accumulativeTime;
 };
 
 void timerEventRequest (TimerEvent * event,int expiryPeriod);
 void initTimerEventQueue();
 void resetTick();
 void incTick();
-void TimerEventEnqueue(TimerEvent * event);
-void TimerEventDequeue();
+void timerEventDequeue();
+void timerEventEnqueue(TimerEvent * event);
 void timerEventISR();
+void checkNextEventTimerIsZero(List * timerEventQueue);
+void checkAndAddTimerEvent(TimerEvent * event);
 #endif /* INC_TIMEREVENT_H_ */

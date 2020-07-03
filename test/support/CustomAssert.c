@@ -73,8 +73,7 @@ void assertEqualTimerEvent (const TimerEvent * actualListItem,
                             const TimerEvent * next,
                             const EventType type,
                       	    const GenericStateMachine * stateMachine,
-                            const int data,
-                            const int accumulativeTime,
+                            const int time,
                             const UNITY_LINE_TYPE lineNumber){
 
     char msg[1024];
@@ -115,14 +114,8 @@ void assertEqualTimerEvent (const TimerEvent * actualListItem,
        UNITY_TEST_FAIL(lineNumber,msg);
     }
 
-    if(actualListItem->data != data){
-        sprintf(msg,"the actual time (%d) is different with expected time (%d)",actualListItem->data ,data);
-        UNITY_TEST_FAIL(lineNumber,msg);
-    }
-
-    if(actualListItem->accumulativeTime != accumulativeTime){
-        sprintf(msg,"the actual accumulativeTime time (%d) is different with expected accumulativeTime (%d)"
-        ,actualListItem->accumulativeTime ,accumulativeTime);
+    if(actualListItem->time != time){
+        sprintf(msg,"the actual time (%d) is different with expected time (%d)",actualListItem->time ,time);
         UNITY_TEST_FAIL(lineNumber,msg);
     }
 

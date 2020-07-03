@@ -18,14 +18,13 @@ void assertEqualTimerEvent (const TimerEvent * actualListItem,
                             const EventType type,
                       	    const GenericStateMachine * stateMachine,
                             const int data,
-                            const int accumulativeTime,
                             const UNITY_LINE_TYPE lineNumber);
 /*
 #define TEST_ASSERT_EQUAL_LIST_ITEM(actualListItem,next,type,stateMachine,data)        \
                       assertEqualListItem(actualListItem,next,type,stateMachine,data,__LINE__)
 */
-#define TEST_ASSERT_EQUAL_TIMER_EVENT(actualListItem,next,type,stateMachine,data,accumulativeTime)        \
-                      assertEqualTimerEvent(actualListItem,next,type,stateMachine,data,accumulativeTime,__LINE__)
+#define TEST_ASSERT_EQUAL_TIMER_EVENT(actualListItem,next,type,stateMachine,time)        \
+                      assertEqualTimerEvent(actualListItem,next,type,stateMachine,time,__LINE__)
 
 
 
