@@ -14,21 +14,21 @@
 List  timerEventQueueList;
 TimerEvent * timerEventItem;
 TimerEvent * currentTimerEventItem;
-int totalTimeDelay,currentTick;
+int totalTimeDelay,relativeTick;
 
 void incTick(){
 		if(timerEventQueueList.count != 0)
-				currentTick++;
+				relativeTick++;
 }
 
 void resetTick(){
-		currentTick = 0;
+		relativeTick = 0;
 }
 
 void checkAndAddTimerEvent(TimerEvent * event){
 		if(event== NULL)
 				return;
-		event->time = event->time + currentTick;
+		event->time = event->time + relativeTick;
 		resetCurrentListItem(&timerEventQueueList);
 		currentTimerEventItem =(TimerEvent*) getCurrentListItem(&timerEventQueueList);
 		if(currentTimerEventItem == NULL){
@@ -39,8 +39,7 @@ void checkAndAddTimerEvent(TimerEvent * event){
 				listAddItemToHead(&timerEventQueueList,(ListItem*)event);
 		}
 		else{
-				timerEventItem = (TimerEvent*)findListItem(&timerEventQueueList,event,
-																									(LinkedListCompare)eventCompareForTime);
+				timerEventItem = (TimerEvent*)findListItem(&timerEventQueueList,event,(LinkedListCompare)eventCompareForTime);
 				// new time delay for next Time Event is old time delay - previous delay time
 				if(timerEventItem->next != NULL)
 						timerEventItem->next->time = timerEventItem->next->time - event->time ;
@@ -115,7 +114,7 @@ void timerEventISR(){
 	    	resetCurrentListItem(&timerEventQueueList);
 	    	// get the timevalue head item
 	    	currentTimerEventItem=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
-      	if(currentTimerEventItem->time == currentTick){
+      	if(currentTimerEventItem->time == relativeTick){
 	      		currentTimerEventItem = timerEventDequeue();
 	      		currentTimerEventItem->type = TIMEOUT_EVENT;
 	      		eventEnqueue((Event*)currentTimerEventItem);

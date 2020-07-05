@@ -25,7 +25,7 @@ struct ButtonStateMachine {
 PressReleaseState getButtonState(ButtonStateMachine *sm);
 void buttonInitStateMachine(ButtonStateMachine * sm);
 void handleButtonStateMachine(Event * event);
-void buttonEventRequest(Event * event ,PressReleaseState state);
+void buttonEventRequest(Event * evt ,PressReleaseState state);
 int convertEventTypeintoButtonState(EventType state);
 //button event goes isr
 //timer event isr

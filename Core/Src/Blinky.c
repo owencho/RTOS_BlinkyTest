@@ -51,10 +51,11 @@ void handleBlinkyStateMachine(Event *event){
             if(event->type == BUTTON_RELEASED_EVENT){
                 sm->isButtonReleased = 1;
                 buttonEventRequest(&sm->blinkyEvent ,PRESS);
+                break;
             }
 
             else if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT){
-            	  timerEventRequest(&sm->timerEvent,100);
+            	timerEventRequest(&sm->timerEvent,100);
                 sm->state=BLINK_ON;
                 sm->isButtonReleased = 0;
                 buttonEventRequest(&sm->blinkyEvent ,RELEASE);
@@ -66,6 +67,7 @@ void handleBlinkyStateMachine(Event *event){
             if(event->type == BUTTON_RELEASED_EVENT){
                 sm->isButtonReleased = 1;
                 buttonEventRequest(&sm->blinkyEvent ,PRESS);
+                break;
             }
             else if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT ){
                 sm->state=LED_OFF_BUTTON_HOLD;
@@ -75,7 +77,7 @@ void handleBlinkyStateMachine(Event *event){
                 break;
             }
             else if(event->type == TIMEOUT_EVENT){
-            	  timerEventRequest(&sm->timerEvent,100);
+            	timerEventRequest(&sm->timerEvent,100);
                 sm->state=BLINK_OFF;
                 turnLed(OFF);
                 break;
@@ -89,15 +91,15 @@ void handleBlinkyStateMachine(Event *event){
             }
             else if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT ){
             	  sm->state=LED_OFF_BUTTON_HOLD;
-                sm->isButtonReleased = 0;
+            	  sm->isButtonReleased = 0;
             	  buttonEventRequest(&sm->blinkyEvent ,RELEASE);
             	  break;
             }
             else if(event->type == TIMEOUT_EVENT){
-        				timerEventRequest(&sm->timerEvent,100);
-        				sm->state=BLINK_ON;
-        				turnLed(ON);
-        				break;
+				timerEventRequest(&sm->timerEvent,100);
+				sm->state=BLINK_ON;
+				turnLed(ON);
+				break;
             }
             break;
         case LED_OFF_BUTTON_HOLD:

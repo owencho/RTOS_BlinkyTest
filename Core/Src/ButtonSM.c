@@ -42,7 +42,7 @@ void handleButtonStateMachine(Event *event){
             if(event->type == TIMEOUT_EVENT){
               	buttonEventPtr->type = BUTTON_PRESSED_EVENT;
               	eventEnqueue(buttonEventPtr);
-              	rawButtonEventRequest(buttonEventPtr ,BUTTON_RELEASED_EVENT);
+              	rawButtonEventRequest(event ,BUTTON_RELEASED_EVENT);
               	buttonEventPtr = NULL;
                 sm->state = BUTTON_PRESSED;
             }
@@ -60,7 +60,7 @@ void handleButtonStateMachine(Event *event){
             if(event->type == TIMEOUT_EVENT){
               	buttonEventPtr->type=BUTTON_RELEASED_EVENT;
               	eventEnqueue(buttonEventPtr);
-                rawButtonEventRequest(buttonEventPtr ,BUTTON_PRESSED_EVENT);
+                rawButtonEventRequest(event ,BUTTON_PRESSED_EVENT);
               	buttonEventPtr = NULL;
                 sm->state = BUTTON_RELEASED;
             }
@@ -68,8 +68,8 @@ void handleButtonStateMachine(Event *event){
     }
 }
 
-void buttonEventRequest(Event * event ,PressReleaseState state){
-  	buttonEventPtr = event;
+void buttonEventRequest(Event * evt ,PressReleaseState state){
+  	buttonEventPtr = evt;
   	expectedButtonState = state;
 
 }

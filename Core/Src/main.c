@@ -28,6 +28,7 @@
 #include "Syscfg.h"
 #include "Exti.h"
 #include "Rcc.h"
+#include "Hardware.h"
 #include "Common.h"
 #include "BaseAddress.h"
 #include "Event.h"
@@ -108,12 +109,12 @@ int main(void)
   ButtonStateMachine buttonSM;
   BlinkyStateMachine blinkySM;
   // init for normal event
-  event = initEventStruct();
-  initEventQueue();
+  //event = initEventStruct();
+  //initEventQueue();
   buttonInitStateMachine(&buttonSM);
   blinkyInitStateMachine(&blinkySM,&buttonSM);
   // init for timer event
-  initEventTimerQueue();
+  //initEventTimerQueue();
 
   //enable EXTI Line0 interrupt
   nvicEnableInterrupt(6);

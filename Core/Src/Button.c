@@ -21,7 +21,7 @@ void rawButtonEventRequest(Event * event , EventType state){
     extiSetInterruptMaskRegister(exti,PIN_0,MASKED);
   	expectedButtonState = state;
     if(readPhysicalButton() == convertEventTypeIntoButtonstate(state)){
-      	buttonEventPtr->type = state;
+    	event->type = state;
       	eventEnqueue(event);
         extiSetInterruptMaskRegister(exti,PIN_0,NOT_MASKED);
       	return;
@@ -35,7 +35,7 @@ void buttonEventISR(){
       	if(readPhysicalButton() == convertEventTypeIntoButtonstate(expectedButtonState)){
         		buttonEventPtr->type = expectedButtonState;
         		eventEnqueue(buttonEventPtr);
-            buttonEventPtr = NULL;
+        		buttonEventPtr = NULL;
       	}
     }
 }

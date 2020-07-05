@@ -142,7 +142,6 @@ void * deleteHeadListItem(List * linkedList){
 void* deleteSelectedListItem(List * linkedList,void  * listItemData,LinkedListCompare compare){
     ListItem * listItem;
     ListItem * deletedListItem;
-    void * data;
     if(linkedList==NULL || listItemData == NULL || compare == NULL)
         return NULL;
     if(linkedList->head ==NULL)
