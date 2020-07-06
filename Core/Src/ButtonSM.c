@@ -27,7 +27,7 @@ PressReleaseState getButtonState(ButtonStateMachine * sm){
 void handleButtonStateMachine(Event *event){
     ButtonStateMachine * sm = (ButtonStateMachine*) event->stateMachine;
     if(event == NULL){
-      return;
+        return;
     }
     switch(sm->state){
         case BUTTON_RELEASED :
@@ -71,5 +71,4 @@ void handleButtonStateMachine(Event *event){
 void buttonEventRequest(Event * evt ,PressReleaseState state){
   	buttonEventPtr = evt;
   	expectedButtonState = state;
-
 }

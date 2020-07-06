@@ -130,7 +130,7 @@ int main(void)
   while (1)
   {
 	if(eventDequeue(&event))
-		  event->stateMachine->callback(event);
+      event->stateMachine->callback(event);
     /* USER CODE END WHILE */
 
 

@@ -5,7 +5,7 @@
 #include "CustomAssert.h"
 #include "List.h"
 #include "ListItemCompare.h"
-#include "mock_Interrupt.h"
+#include "mock_Hardware.h"
 
 extern List eventQueueList;
 
@@ -30,9 +30,9 @@ void test_Event_eventEnqueue(void){
     enableIRQ_Expect();
     initEvent(&evt, NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
     eventEnqueue(&evt);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.head,NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.tail,NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.current,NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.head);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.tail);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.current);
     TEST_ASSERT_NULL(eventQueueList.previous);
     TEST_ASSERT_EQUAL(1,eventQueueList.count);
 }
@@ -42,9 +42,9 @@ void test_Event_eventEnqueue_with_NULL_input(void){
     enableIRQ_Expect();
     initEvent(&evt, NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
     eventEnqueue(NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.head,NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.tail,NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.current,NULL,BUTTON_PRESSED_EVENT,&sm,NULL);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.head);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.tail);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.current);
     TEST_ASSERT_NULL(eventQueueList.previous);
     TEST_ASSERT_EQUAL(1,eventQueueList.count);
 }
@@ -55,9 +55,9 @@ void test_Event_eventEnqueue_withqueue_inside(void){
     enableIRQ_Expect();
     initEvent(&evt2, NULL,BUTTON_RELEASED_EVENT,&sm,NULL);
     eventEnqueue(&evt2);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.head,&evt2,BUTTON_PRESSED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.tail,NULL,BUTTON_RELEASED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.current,&evt2,BUTTON_PRESSED_EVENT,&sm,NULL);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.head);
+    TEST_ASSERT_EQUAL(&evt2,eventQueueList.tail);
+    TEST_ASSERT_EQUAL(&evt,eventQueueList.current);
     TEST_ASSERT_NULL(eventQueueList.previous);
     TEST_ASSERT_EQUAL(2,eventQueueList.count);
 }
@@ -66,10 +66,10 @@ void test_Event_eventdequeue_with2queue_inside(void){
     disableIRQ_Expect();
     enableIRQ_Expect();
     TEST_ASSERT_EQUAL(1,eventDequeue(&outQueue));
-    TEST_ASSERT_EQUAL_LIST_ITEM(outQueue,&evt2,BUTTON_PRESSED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.head,NULL,BUTTON_RELEASED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.tail,NULL,BUTTON_RELEASED_EVENT,&sm,NULL);
-    TEST_ASSERT_EQUAL_LIST_ITEM(eventQueueList.current,NULL,BUTTON_RELEASED_EVENT,&sm,NULL);
+    TEST_ASSERT_EQUAL(&evt,outQueue);
+    TEST_ASSERT_EQUAL(&evt2,eventQueueList.head);
+    TEST_ASSERT_EQUAL(&evt2,eventQueueList.tail);
+    TEST_ASSERT_EQUAL(&evt2,eventQueueList.current);
     TEST_ASSERT_NULL(eventQueueList.previous);
     TEST_ASSERT_EQUAL(1,eventQueueList.count);
 }
@@ -78,7 +78,7 @@ void test_Event_eventdequeue_with1queue_inside(void){
     disableIRQ_Expect();
     enableIRQ_Expect();
     TEST_ASSERT_EQUAL(1,eventDequeue(&outQueue));
-    TEST_ASSERT_EQUAL_LIST_ITEM(outQueue,NULL,BUTTON_RELEASED_EVENT,&sm,NULL);
+    TEST_ASSERT_EQUAL(&evt2,outQueue);
     TEST_ASSERT_NULL(eventQueueList.head);
     TEST_ASSERT_NULL(eventQueueList.tail);
     TEST_ASSERT_NULL(eventQueueList.current);

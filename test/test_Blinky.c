@@ -89,7 +89,7 @@ void test_blinkyInitStateMachine_LED_ON_state_remain_as_isButtonReleased_is1(voi
 void test_blinkyInitStateMachine_LED_ON_state_change_to_BLINK_ON(void){
     initEvent(&evt,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     initBlinkySM(&blinkySM, (Callback)handleBlinkyStateMachine,LED_ON,1,&buttonSM,timeEv,buttonEv);
-    timerEventStart_Expect(&blinkySM.timerEvent,100);
+    timerEventRequest_Expect(&blinkySM.timerEvent,100);
     buttonEventRequest_Expect(&blinkySM.blinkyEvent,RELEASE);
     handleBlinkyStateMachine(&evt);
     TEST_ASSERT_EQUAL(blinkySM.state,BLINK_ON );
@@ -98,7 +98,7 @@ void test_blinkyInitStateMachine_LED_ON_state_change_to_BLINK_ON(void){
 void test_blinkyInitStateMachine_BLINK_ON_state_changes_BLINK_OFF_as_TIMEOUT(void){
     initEvent(&evt,NULL,TIMEOUT_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     initBlinkySM(&blinkySM, (Callback)handleBlinkyStateMachine,BLINK_ON,0,&buttonSM,timeEv,buttonEv);
-    timerEventStart_Expect(&blinkySM.timerEvent,100);
+    timerEventRequest_Expect(&blinkySM.timerEvent,100);
     turnLed_Expect(OFF);
     handleBlinkyStateMachine(&evt);
     TEST_ASSERT_EQUAL(blinkySM.state,BLINK_OFF );
@@ -132,7 +132,7 @@ void test_blinkyInitStateMachine_BLINK_ON_state_change_to_LED_OFF_BUTTON_HOLD(vo
 void test_blinkyInitStateMachine_BLINK_OFF_state_changes_BLINK_ON_as_TIMEOUT(void){
     initEvent(&evt,NULL,TIMEOUT_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     initBlinkySM(&blinkySM, (Callback)handleBlinkyStateMachine,BLINK_OFF,0,&buttonSM,timeEv,buttonEv);
-    timerEventStart_Expect(&blinkySM.timerEvent,100);
+    timerEventRequest_Expect(&blinkySM.timerEvent,100);
     turnLed_Expect(ON);
     handleBlinkyStateMachine(&evt);
     TEST_ASSERT_EQUAL(blinkySM.state,BLINK_ON );

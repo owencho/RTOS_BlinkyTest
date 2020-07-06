@@ -16,7 +16,7 @@
 #include "mock_Led.h"
 #include "CustomAssert.h"
 #include "EventCompare.h"
-#include "fakeIRQ.h"
+#include "FakeIRQ.h"
 
 extern List eventQueueList;
 BlinkyStateMachine blinkySM;

@@ -16,12 +16,12 @@ int readPhysicalButton(){
 }
 
 void disableIRQ(){
-  if(disableIrqCount == 0)
-	   __disable_irq();
-  disableIrqCount++;
+    if(disableIrqCount == 0)
+        __disable_irq();
+    disableIrqCount++;
 }
 void enableIRQ(){
   disableIrqCount--;
   if(disableIrqCount == 0)
-	   __enable_irq();
+      __enable_irq();
 }

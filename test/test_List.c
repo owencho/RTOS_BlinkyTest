@@ -1,16 +1,14 @@
 #include "unity.h"
-#include "NetworkNode.h"
 #include "List.h"
 #include "ListItem.h"
 #include "ListItemCompare.h"
 #include "LinkedListCompare.h"
-#include "LinkCompare.h"
 #include "LinkedListProcessor.h"
 #include "CustomAssert.h"
 #include "EventType.h"
 #include "StateMachine.h"
 #include "mock_ProcessorFunction.h"
-NetworkNode node;
+#include "NetworkNode.h"
 List linkedList;
 ListItem  itemA,itemB,itemC;
 ListItem * listItemA;

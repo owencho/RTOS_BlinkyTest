@@ -87,7 +87,7 @@ void test_ButtonInitStateMachine_BUTTON_PRESSED_DEBOUNCING_state(void){
     buttonEventRequest(&evtForBlinky,PRESS);
 
     eventEnqueue_Expect(&evtForBlinky);
-    rawButtonEventRequest_Expect(&evtForBlinky,BUTTON_RELEASED_EVENT);
+    rawButtonEventRequest_Expect(&evt,BUTTON_RELEASED_EVENT);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_PRESSED);
 }
@@ -155,7 +155,7 @@ void test_ButtonInitStateMachine_BUTTON_RELEASED_DEBOUNCING_state(void){
     buttonEventRequest(&evtForBlinky,PRESS);
 
     eventEnqueue_Expect(&evtForBlinky);
-    rawButtonEventRequest_Expect(&evtForBlinky,BUTTON_PRESSED_EVENT);
+    rawButtonEventRequest_Expect(&evt,BUTTON_PRESSED_EVENT);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_RELEASED);
 }

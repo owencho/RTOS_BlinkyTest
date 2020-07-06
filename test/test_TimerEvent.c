@@ -23,7 +23,7 @@ BlinkyStateMachine blinkySM;
 List testQueueList;
 extern List timerEventQueueList;
 extern List eventQueueList;
-extern int currentTick;
+extern int relativeTick;
 
 void initTimerEvent(TimerEvent * event, TimerEvent *next ,EventType type,
                     GenericStateMachine * stateMachine,int time){
@@ -69,7 +69,7 @@ void initTimerEventQueueWithData(int timeDelay1 , int timeDelay2,int timeDelay3,
 
 
 void setTickTest(int time){
-    currentTick = time;
+    relativeTick = time;
 }
 
 void test_checkAndAddTimerEvent_for_first_item(void){
