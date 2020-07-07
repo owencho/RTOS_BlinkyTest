@@ -3,8 +3,8 @@
 #include "EventType.h"
 #include "Exti.h"
 #include "Hardware.h"
-static Event * buttonEventPtr = NULL;
-static EventType expectedButtonState;
+Event * buttonEventPtr = NULL;
+EventType expectedButtonState;
 
 
 int convertEventTypeIntoButtonstate(EventType state){
@@ -13,11 +13,13 @@ int convertEventTypeIntoButtonstate(EventType state){
     else if(state== BUTTON_PRESSED_EVENT)
         return 1;
     else
-        return 1;
+        return 2;
 }
 
 void rawButtonEventRequest(Event * event , EventType state){
     //disable global IRQ
+    if(event == NULL)
+        return;
     extiSetInterruptMaskRegister(exti,PIN_0,MASKED);
   	expectedButtonState = state;
     if(readPhysicalButton() == convertEventTypeIntoButtonstate(state)){

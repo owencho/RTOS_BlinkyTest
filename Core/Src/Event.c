@@ -1,7 +1,7 @@
 #include "Event.h"
 #include "List.h"
 #include "Hardware.h"
-
+#include "Irq.h"
 List eventQueueList;
 
 void eventEnqueue(Event * event){

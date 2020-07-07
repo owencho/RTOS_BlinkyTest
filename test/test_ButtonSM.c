@@ -4,6 +4,7 @@
 #include "mock_TimerEvent.h"
 #include "mock_Event.h"
 #include "mock_Hardware.h"
+#include "mock_Irq.h"
 #include "mock_Exti.h"
 #include "mock_Button.h"
 #include <stdint.h>

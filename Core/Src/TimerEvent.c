@@ -10,7 +10,7 @@
 #include "Hardware.h"
 #include "LinkedListCompare.h"
 #include "EventCompare.h"
-
+#include "Irq.h"
 List  timerEventQueueList;
 TimerEvent * timerEventItem;
 TimerEvent * currentTimerEventItem;

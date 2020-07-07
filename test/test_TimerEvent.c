@@ -6,6 +6,7 @@
 #include "ListItemCompare.h"
 #include "Event.h"
 #include "mock_Hardware.h"
+#include "mock_Irq.h"
 #include "mock_Exti.h"
 #include "mock_Button.h"
 #include <stdint.h>
@@ -19,11 +20,14 @@
 #include "FakeIRQ.h"
 TimerEvent timeEv,timeEv2 ,timeEv3,timeEv4;
 TimerEvent * outputTimerEvent;
-BlinkyStateMachine blinkySM;
 List testQueueList;
 extern List timerEventQueueList;
 extern List eventQueueList;
 extern int relativeTick;
+
+void setTickTest(int time){
+    relativeTick = time;
+}
 
 void initTimerEvent(TimerEvent * event, TimerEvent *next ,EventType type,
                     GenericStateMachine * stateMachine,int time){
@@ -38,6 +42,7 @@ void resetTimerQueueTest(){
     timerEventQueueList.count = 0;
     timerEventQueueList.current = NULL;
     timerEventQueueList.previous = NULL;
+    setTickTest(0);
 }
 
 void resetEventQueueTest(){
@@ -51,32 +56,22 @@ void resetEventQueueTest(){
 void initTimerEventQueueWithData(int timeDelay1 , int timeDelay2,int timeDelay3,
                                  int timeDelay4){
     resetTimerQueueTest();
-    initTimerEvent(&timeEv,NULL,NO_EVENT,
-                  (GenericStateMachine*)&blinkySM,0);
-    initTimerEvent(&timeEv2,NULL,BUTTON_PRESSED_EVENT,
-                  (GenericStateMachine*)&blinkySM,0);
-    initTimerEvent(&timeEv3,NULL,BUTTON_RELEASED_EVENT,
-                  (GenericStateMachine*)&blinkySM,0);
-    initTimerEvent(&timeEv4,NULL,BUTTON_PRESSED_EVENT,
-                  (GenericStateMachine*)&blinkySM,0);
+    initTimerEvent(&timeEv,NULL,NO_EVENT,NULL,0);
+    initTimerEvent(&timeEv2,NULL,BUTTON_PRESSED_EVENT,NULL,0);
+    initTimerEvent(&timeEv3,NULL,BUTTON_RELEASED_EVENT,NULL,0);
+    initTimerEvent(&timeEv4,NULL,BUTTON_PRESSED_EVENT,NULL,0);
 
-    timerEventRequest (&timeEv,timeDelay1);
-    timerEventRequest (&timeEv2,timeDelay2);
-    timerEventRequest (&timeEv3,timeDelay3);
-    timerEventRequest (&timeEv4,timeDelay4);
+    timerEventRequest(&timeEv,timeDelay1);
+    timerEventRequest(&timeEv2,timeDelay2);
+    timerEventRequest(&timeEv3,timeDelay3);
+    timerEventRequest(&timeEv4,timeDelay4);
 }
 
-
-
-void setTickTest(int time){
-    relativeTick = time;
-}
 
 void test_checkAndAddTimerEvent_for_first_item(void){
     resetTimerQueueTest();
     setTickTest(0);
-    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,
-                  (GenericStateMachine*)&blinkySM,50);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
     checkAndAddTimerEvent(&timeEv);
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
@@ -87,10 +82,8 @@ void test_checkAndAddTimerEvent_for_first_item(void){
 void test_checkAndAddTimerEvent_for_second_item(void){
     resetTimerQueueTest();
     setTickTest(0);
-    initTimerEvent(&timeEv4, NULL ,BUTTON_PRESSED_EVENT,
-                  (GenericStateMachine*)&blinkySM,10);
-    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,
-                  (GenericStateMachine*)&blinkySM,50);
+    initTimerEvent(&timeEv4, NULL ,BUTTON_PRESSED_EVENT,NULL,10);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
     enableIRQ_StubWithCallback(fake_enableIRQ);
     disableIRQ_StubWithCallback(fake_disableIRQ);
 
@@ -99,10 +92,10 @@ void test_checkAndAddTimerEvent_for_second_item(void){
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,10);
+                                  NULL,10);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,40);
+                                  NULL,40);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
 
@@ -113,7 +106,7 @@ void test_checkAndAddTimerEvent_for_second_item(void){
 void test_checkAndAddTimerEvent_for_third_item(void){
     setTickTest(5);
     initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,
-                  (GenericStateMachine*)&blinkySM,20);
+                  NULL,20);
     enableIRQ_StubWithCallback(fake_enableIRQ);
     disableIRQ_StubWithCallback(fake_disableIRQ);
 
@@ -121,13 +114,13 @@ void test_checkAndAddTimerEvent_for_third_item(void){
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3,BUTTON_PRESSED_EVENT
-                                  ,(GenericStateMachine*)&blinkySM,10);
+                                  ,NULL,10);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv,BUTTON_PRESSED_EVENT
-                                  ,(GenericStateMachine*)&blinkySM,15);
+                                  ,NULL,15);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL,BUTTON_PRESSED_EVENT
-                                  ,(GenericStateMachine*)&blinkySM,25);
+                                  ,NULL,25);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
 
@@ -137,7 +130,7 @@ void test_checkAndAddTimerEvent_for_third_item(void){
 
 void test_checkAndAddTimerEvent_for_last_item(void){
     setTickTest(7);
-    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,80);
+    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,NULL,80);
     enableIRQ_StubWithCallback(fake_enableIRQ);
     disableIRQ_StubWithCallback(fake_disableIRQ);
 
@@ -145,16 +138,16 @@ void test_checkAndAddTimerEvent_for_last_item(void){
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3,BUTTON_PRESSED_EVENT,
-                                (GenericStateMachine*)&blinkySM,10);
+                                NULL,10);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,15);
+                                  NULL,15);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv2,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,25);
+                                  NULL,25);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,37);
+                                  NULL,37);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
 
@@ -172,15 +165,16 @@ void test_timerEventDequeue(void){
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3,BUTTON_PRESSED_EVENT,
-                                (GenericStateMachine*)&blinkySM,20);
+                                NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv4 ,BUTTON_RELEASED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,30);
+                                  NULL,30);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,20);
+                                  NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
@@ -196,20 +190,20 @@ void test_timerEventDequeue_event_queue_is_empty(void){
     TEST_ASSERT_NULL(timerEventQueueList.current);
     TEST_ASSERT_NULL(timerEventQueueList.previous);
     TEST_ASSERT_EQUAL(0,timerEventQueueList.count);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
 void test_timerEventEnqueue_for_first_item(void){
     resetTimerQueueTest();
     //timerEventEnqueue
-    setTickTest(0);
     enableIRQ_StubWithCallback(fake_enableIRQ);
     disableIRQ_StubWithCallback(fake_disableIRQ);
-    initTimerEvent(&timeEv2, NULL ,NO_EVENT,(GenericStateMachine*)&blinkySM,30);
+    initTimerEvent(&timeEv2, NULL ,NO_EVENT,NULL,30);
     timerEventEnqueue(&timeEv2);
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,
-                                  NO_EVENT,(GenericStateMachine*)&blinkySM,30);
+                                  NO_EVENT,NULL,30);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
 
@@ -222,15 +216,13 @@ void test_timerEventEnqueue_for_second_item_with_same_delay(void){
     setTickTest(0);
     enableIRQ_StubWithCallback(fake_enableIRQ);
     disableIRQ_StubWithCallback(fake_disableIRQ);
-    initTimerEvent(&timeEv3, NULL ,NO_EVENT,(GenericStateMachine*)&blinkySM,30);
+    initTimerEvent(&timeEv3, NULL ,NO_EVENT,NULL,30);
 
     timerEventEnqueue(&timeEv3);
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
-    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3 ,
-                                  NO_EVENT,(GenericStateMachine*)&blinkySM,30);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3 ,NO_EVENT,NULL,30);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
-    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,
-                                  NO_EVENT,(GenericStateMachine*)&blinkySM,0);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,NO_EVENT,NULL,0);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
     TEST_ASSERT_EQUAL(2,timerEventQueueList.count);
@@ -244,7 +236,7 @@ void test_timerEventEnqueue_for_NULL_input(void){
     disableIRQ_StubWithCallback(fake_disableIRQ);
     enableIRQ_StubWithCallback(fake_enableIRQ);
 
-    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,50);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
     timerEventEnqueue(NULL);
     TEST_ASSERT_NULL(timerEventQueueList.head);
     TEST_ASSERT_NULL(timerEventQueueList.tail);
@@ -261,14 +253,14 @@ void test_timerEventRequest_for_first_item(void){
     disableIRQ_StubWithCallback(fake_disableIRQ);
     enableIRQ_StubWithCallback(fake_enableIRQ);
 
-    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,0);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,0);
     timerEventRequest(&timeEv,100);
     TEST_ASSERT_EQUAL_TIMER_EVENT((TimerEvent *)timerEventQueueList.head,NULL ,
-                                  BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,100);
+                                  BUTTON_PRESSED_EVENT,NULL,100);
     TEST_ASSERT_EQUAL_TIMER_EVENT((TimerEvent *)timerEventQueueList.tail,NULL
-                                  ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,100);
+                                  ,BUTTON_PRESSED_EVENT,NULL,100);
     TEST_ASSERT_EQUAL_TIMER_EVENT((TimerEvent *)timerEventQueueList.current,NULL
-                                  ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,100);
+                                  ,BUTTON_PRESSED_EVENT,NULL,100);
     TEST_ASSERT_NULL(timerEventQueueList.previous);
     TEST_ASSERT_EQUAL(1,timerEventQueueList.count);
     fakeCheckIRQ(__LINE__);
@@ -280,16 +272,16 @@ void test_timerEventRequest_for_second_item_set_120ms_after_tick_ady_20ms_back(v
     disableIRQ_StubWithCallback(fake_disableIRQ);
     enableIRQ_StubWithCallback(fake_enableIRQ);
 
-    initTimerEvent(&timeEv2, NULL ,NO_EVENT,(GenericStateMachine*)&blinkySM,0);
+    initTimerEvent(&timeEv2, NULL ,NO_EVENT,NULL,0);
     timerEventRequest(&timeEv2,120);
     TEST_ASSERT_EQUAL(2,timerEventQueueList.count);
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv2 ,
-                                  BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,100);
+                                  BUTTON_PRESSED_EVENT,NULL,100);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,
-                                  NO_EVENT,(GenericStateMachine*)&blinkySM,40);
+                                  NO_EVENT,NULL,40);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
     fakeCheckIRQ(__LINE__);
@@ -300,19 +292,19 @@ void test_timerEventRequest_for_second_item_set_110ms_after_tick_ady_30ms_front(
     setTickTest(30);
     disableIRQ_StubWithCallback(fake_disableIRQ);
     enableIRQ_StubWithCallback(fake_enableIRQ);
-    initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,0);
+    initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,NULL,0);
     timerEventRequest(&timeEv3,50);
     TEST_ASSERT_EQUAL(3,timerEventQueueList.count);
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv ,
-                                  BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,80);
+                                  BUTTON_PRESSED_EVENT,NULL,80);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv2 ,
-                                  BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,20);
+                                  BUTTON_PRESSED_EVENT,NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,
-                                  NO_EVENT,(GenericStateMachine*)&blinkySM,40);
+                                  NO_EVENT,NULL,40);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
     fakeCheckIRQ(__LINE__);
@@ -324,22 +316,22 @@ void test_timerEventRequest_for_second_item_set_80ms_after_tick_ady_40ms_front(v
     setTickTest(40);
     disableIRQ_StubWithCallback(fake_disableIRQ);
     enableIRQ_StubWithCallback(fake_enableIRQ);
-    initTimerEvent(&timeEv4, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,0);
+    initTimerEvent(&timeEv4, NULL ,BUTTON_PRESSED_EVENT,NULL,0);
     timerEventRequest(&timeEv4,80);
     TEST_ASSERT_EQUAL(4,timerEventQueueList.count);
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv ,
-                                  BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,80);
+                                  BUTTON_PRESSED_EVENT,NULL,80);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv4 ,
-                                  BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,20);
+                                  BUTTON_PRESSED_EVENT,NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv2 ,
-                                  BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,20);
+                                  BUTTON_PRESSED_EVENT,NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,
-                                  NO_EVENT,(GenericStateMachine*)&blinkySM,20);
+                                  NO_EVENT,NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
     fakeCheckIRQ(__LINE__);
@@ -358,6 +350,7 @@ void test_timerEventISR_event_queue_is_empty(void){
     TEST_ASSERT_NULL(timerEventQueueList.current);
     TEST_ASSERT_NULL(timerEventQueueList.previous);
     TEST_ASSERT_EQUAL(0,timerEventQueueList.count);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
@@ -367,12 +360,13 @@ void test_timerEventISR_event_queue_is_one_time_up(void){
     disableIRQ_StubWithCallback(fake_disableIRQ);
     enableIRQ_StubWithCallback(fake_enableIRQ);
 
-    initTimerEvent(&timeEv4, NULL ,TIMEOUT_EVENT,(GenericStateMachine*)&blinkySM,0);
+    initTimerEvent(&timeEv4, NULL ,TIMEOUT_EVENT,NULL,0);
     timerEventRequest(&timeEv4,80);
     setTickTest(80);
     timerEventISR();
     outputTimerEvent= (TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
@@ -382,12 +376,13 @@ void test_timerEventISR_event_queue_is_one_but_time_havent_reach(void){
     disableIRQ_StubWithCallback(fake_disableIRQ);
     enableIRQ_StubWithCallback(fake_enableIRQ);
 
-    initTimerEvent(&timeEv4, NULL ,TIMEOUT_EVENT,(GenericStateMachine*)&blinkySM,0);
+    initTimerEvent(&timeEv4, NULL ,TIMEOUT_EVENT,NULL,0);
     timerEventRequest(&timeEv4,80);
     setTickTest(55);
     timerEventISR();
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
-    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,TIMEOUT_EVENT,(GenericStateMachine*)&blinkySM,80);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,TIMEOUT_EVENT,NULL,80);
+    TEST_ASSERT_EQUAL(55,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
@@ -401,16 +396,16 @@ void test_checkAndDequeueIfNextEventTimerIsZero_no_zero_value(void){
 
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv2,NO_EVENT,
-                                  (GenericStateMachine*)&blinkySM,10);
+                                  NULL,10);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3,BUTTON_PRESSED_EVENT
-                                  ,(GenericStateMachine*)&blinkySM,20);
+                                  ,NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv4 ,BUTTON_RELEASED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,30);
+                                  NULL,30);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,20);
+                                  NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
     fakeCheckIRQ(__LINE__);
@@ -425,15 +420,16 @@ void test_checkAndDequeueIfNextEventTimerIsZero_with_one_zero_value(void){
     checkAndDequeueIfNextEventTimerIsZero();
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,30);
+                                  NULL,30);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv4 ,BUTTON_RELEASED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,30);
+                                  NULL,30);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent, NULL ,BUTTON_PRESSED_EVENT,
-                                  (GenericStateMachine*)&blinkySM,20);
+                                  NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
@@ -446,12 +442,13 @@ void test_checkAndDequeueIfNextEventTimerIsZero_with_two_zero_value(void){
     checkAndDequeueIfNextEventTimerIsZero();
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv4,BUTTON_RELEASED_EVENT
-                                  ,(GenericStateMachine*)&blinkySM,60);
+                                  ,NULL,60);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent, NULL ,BUTTON_PRESSED_EVENT
-                                  ,(GenericStateMachine*)&blinkySM,20);
+                                  ,NULL,20);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
@@ -464,9 +461,10 @@ void test_checkAndDequeueIfNextEventTimerIsZero_with_three_zero_value(void){
     checkAndDequeueIfNextEventTimerIsZero();
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL,BUTTON_PRESSED_EVENT
-                                  ,(GenericStateMachine*)&blinkySM,80);
+                                  ,NULL,80);
     outputTimerEvent= (TimerEvent*)getNextListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }
 
@@ -479,5 +477,6 @@ void test_checkAndDequeueIfNextEventTimerIsZero_with_all_zero_value(void){
     checkAndDequeueIfNextEventTimerIsZero();
     outputTimerEvent=(TimerEvent*)getCurrentListItem(&timerEventQueueList);
     TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,relativeTick);
     fakeCheckIRQ(__LINE__);
 }

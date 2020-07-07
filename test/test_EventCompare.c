@@ -6,6 +6,7 @@
 #include "ListItemCompare.h"
 #include "Event.h"
 #include "mock_Hardware.h"
+#include "mock_Irq.h"
 #include "mock_Exti.h"
 #include "mock_Button.h"
 #include <stdint.h>
