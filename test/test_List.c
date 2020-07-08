@@ -8,13 +8,12 @@
 #include "EventType.h"
 #include "StateMachine.h"
 #include "mock_ProcessorFunction.h"
-#include "NetworkNode.h"
 List linkedList;
 ListItem  itemA,itemB,itemC;
 ListItem * listItemA;
 ListItem *listItemB;
 ListItem *listItemC;
-Link  linkItemDataA,linkItemDataB,linkItemDataC;
+int  linkItemDataA,linkItemDataB,linkItemDataC;
 ListItem * outputListItem;
 List* outList;
 GenericStateMachine sm;
