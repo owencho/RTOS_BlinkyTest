@@ -104,7 +104,7 @@ int main(void)
 
   enableGpioA();
   gpioSetMode(gpioA, PIN_0, GPIO_IN);
-  gpioSetPinSpeed(gpioG,PIN_0,HIGH_SPEED);
+  gpioSetPinSpeed(gpioA,PIN_0,HIGH_SPEED);
 
   ButtonStateMachine buttonSM;
   BlinkyStateMachine blinkySM;
@@ -130,7 +130,7 @@ int main(void)
   while (1)
   {
 	if(eventDequeue(&event))
-      event->stateMachine->callback(event);
+		event->stateMachine->callback(event);
     /* USER CODE END WHILE */
 
 
