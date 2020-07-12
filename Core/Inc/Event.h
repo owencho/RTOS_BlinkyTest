@@ -3,18 +3,15 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "StateMachine.h"
-#include "ListItem.h"
+#include "EventType.h"
 
 typedef struct Event Event;
 
 struct Event {
-  	ListItem * next;
+  	Event * next;
     void * data;
   	EventType type;
   	GenericStateMachine * stateMachine;
 };
 
-//void initEvent(Event * event,EventType type,StateMachine * sm,void * data);
-void eventEnqueue(Event * event);
-int  eventDequeue(Event ** event);
 #endif // EVENT_H

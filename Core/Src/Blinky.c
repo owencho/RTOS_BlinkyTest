@@ -5,7 +5,7 @@
 #include "ButtonSM.h"
 #include "Time.h"
 #include "TimerEvent.h"
-
+#include"ButtonAndBlinkyQueue.h"
 
 void blinkyInitStateMachine(BlinkyStateMachine * sm,ButtonStateMachine * button){
     if(sm == NULL){
@@ -55,7 +55,7 @@ void handleBlinkyStateMachine(Event *event){
             }
 
             else if(sm->isButtonReleased==1 && event->type == BUTTON_PRESSED_EVENT){
-            	timerEventRequest(&sm->timerEvent,100);
+            	  timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
                 sm->state=BLINK_ON;
                 sm->isButtonReleased = 0;
                 buttonEventRequest(&sm->blinkyEvent ,RELEASE);
@@ -77,7 +77,7 @@ void handleBlinkyStateMachine(Event *event){
                 break;
             }
             else if(event->type == TIMEOUT_EVENT){
-            	timerEventRequest(&sm->timerEvent,100);
+            	  timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
                 sm->state=BLINK_OFF;
                 turnLed(OFF);
                 break;
@@ -96,7 +96,7 @@ void handleBlinkyStateMachine(Event *event){
             	  break;
             }
             else if(event->type == TIMEOUT_EVENT){
-				timerEventRequest(&sm->timerEvent,100);
+				timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
 				sm->state=BLINK_ON;
 				turnLed(ON);
 				break;

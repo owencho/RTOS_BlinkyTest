@@ -3,6 +3,7 @@
 #include "EventType.h"
 #include "Exti.h"
 #include "Hardware.h"
+#include"ButtonAndBlinkyQueue.h"
 Event * buttonEventPtr = NULL;
 EventType expectedButtonState;
 
@@ -24,7 +25,7 @@ void rawButtonEventRequest(Event * event , EventType state){
   	expectedButtonState = state;
     if(readPhysicalButton() == convertEventTypeIntoButtonstate(state)){
         event->type = state;
-      	eventEnqueue(event);
+      	eventEnqueue(&buttonBlinkyEventQueue,event);
         extiSetInterruptMaskRegister(exti,PIN_0,NOT_MASKED);
       	return;
     }
@@ -36,7 +37,7 @@ void buttonEventISR(){
     if(buttonEventPtr != NULL){
       	if(readPhysicalButton() == convertEventTypeIntoButtonstate(expectedButtonState)){
         		buttonEventPtr->type = expectedButtonState;
-        		eventEnqueue(buttonEventPtr);
+        		eventEnqueue(&buttonBlinkyEventQueue,buttonEventPtr);
         		buttonEventPtr = NULL;
       	}
     }

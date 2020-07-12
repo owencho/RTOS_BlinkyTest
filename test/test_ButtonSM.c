@@ -1,8 +1,11 @@
 #include "unity.h"
 #include "ButtonSM.h"
+#include"ButtonAndBlinkyQueue.h"
+#include"Event.h"
+#include"TimerEvent.h"
 #include "mock_Time.h"
-#include "mock_TimerEvent.h"
-#include "mock_Event.h"
+#include "mock_TimerEventQueue.h"
+#include "mock_EventQueue.h"
 #include "mock_Hardware.h"
 #include "mock_Irq.h"
 #include "mock_Exti.h"
@@ -30,7 +33,7 @@ void initButtonSM(ButtonStateMachine * sm, Callback callback,ButtonState state,
     sm->buttonEvent = buttonEvent;
 }
 
-void initEvent(Event * event, ListItem * next ,EventType type,
+void initEvent(Event * event, Event * next ,EventType type,
                GenericStateMachine * stateMachine,void* data){
     event->next = next;
     event->type = type;
@@ -75,7 +78,7 @@ void test_ButtonInitStateMachine_released_state_with_request_from_blinky(void){
     initEvent(&evtForBlinky,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     buttonEventRequest(&evtForBlinky,PRESS);
 
-    timerEventRequest_Expect(&buttonSM.timerEvent,100);
+    timerEventRequest_Expect(&buttonBlinkyTimerEventQueue,&buttonSM.timerEvent,100);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_PRESSED_DEBOUNCING);
 }
@@ -87,7 +90,7 @@ void test_ButtonInitStateMachine_BUTTON_PRESSED_DEBOUNCING_state(void){
     initEvent(&evtForBlinky,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     buttonEventRequest(&evtForBlinky,PRESS);
 
-    eventEnqueue_Expect(&evtForBlinky);
+    eventEnqueue_Expect(&buttonBlinkyEventQueue,&evtForBlinky);
     rawButtonEventRequest_Expect(&evt,BUTTON_RELEASED_EVENT);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_PRESSED);
@@ -143,7 +146,7 @@ void test_ButtonInitStateMachine_BUTTON_PRESSED_requested_by_blinky(void){
     initEvent(&evtForBlinky,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     buttonEventRequest(&evtForBlinky,RELEASE);
 
-    timerEventRequest_Expect(&buttonSM.timerEvent,100);
+    timerEventRequest_Expect(&buttonBlinkyTimerEventQueue,&buttonSM.timerEvent,100);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_RELEASED_DEBOUNCING);
 }
@@ -155,7 +158,7 @@ void test_ButtonInitStateMachine_BUTTON_RELEASED_DEBOUNCING_state(void){
     initEvent(&evtForBlinky,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     buttonEventRequest(&evtForBlinky,PRESS);
 
-    eventEnqueue_Expect(&evtForBlinky);
+    eventEnqueue_Expect(&buttonBlinkyEventQueue,&evtForBlinky);
     rawButtonEventRequest_Expect(&evt,BUTTON_PRESSED_EVENT);
     handleButtonStateMachine(&evt);
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_RELEASED);

@@ -26,7 +26,9 @@
 #include "Blinky.h"
 #include "Button.h"
 #include "ButtonSM.h"
-#include "TimerEvent.h"
+#include "TimerEventISR.h"
+#include "TimerEventQueue.h"
+#include "ButtonAndBlinkyQueue.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -188,11 +190,11 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-  timerEventISR();
+  timerEventISR(&buttonBlinkyEventQueue,&buttonBlinkyTimerEventQueue);
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-  incTick();
+  incTick(&buttonBlinkyTimerEventQueue);
   /* USER CODE END SysTick_IRQn 1 */
 }
 

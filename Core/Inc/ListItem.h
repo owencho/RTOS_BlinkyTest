@@ -2,8 +2,7 @@
 #define _LISTITEM_H
 
 typedef struct ListItem ListItem ;
-#include "EventType.h"
-#include "StateMachine.h"
+
 
 struct ListItem{
     ListItem * next ;

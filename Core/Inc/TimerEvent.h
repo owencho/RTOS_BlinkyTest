@@ -8,9 +8,10 @@
 #ifndef INC_TIMEREVENT_H_
 #define INC_TIMEREVENT_H_
 
-#include "Event.h"
-#include "List.h"
 #include <stdint.h>
+#include <stddef.h>
+#include "StateMachine.h"
+#include "EventType.h"
 
 typedef struct TimerEvent TimerEvent;
 struct TimerEvent {
@@ -20,13 +21,4 @@ struct TimerEvent {
 		GenericStateMachine * stateMachine;
 };
 
-void timerEventRequest (TimerEvent * event,int expiryPeriod);
-void initTimerEventQueue();
-void resetTick();
-void incTick();
-void * timerEventDequeue();
-void timerEventEnqueue(TimerEvent * event);
-void timerEventISR();
-void checkAndDequeueIfNextEventTimerIsZero();
-void checkAndAddTimerEvent(TimerEvent * event);
 #endif /* INC_TIMEREVENT_H_ */

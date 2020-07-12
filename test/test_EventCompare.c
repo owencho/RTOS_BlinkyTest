@@ -1,5 +1,4 @@
 #include "unity.h"
-#include "ButtonSM.h"
 #include "mock_Time.h"
 #include "TimerEvent.h"
 #include "List.h"
@@ -13,14 +12,11 @@
 #include "StateMachine.h"
 #include "CustomAssert.h"
 #include "EventType.h"
-#include "Blinky.h"
 #include "mock_Led.h"
 #include "CustomAssert.h"
 #include "EventCompare.h"
 #include "FakeIRQ.h"
 
-extern List eventQueueList;
-BlinkyStateMachine blinkySM;
 TimerEvent timeEv,timeEv2 ,timeEv3,timeEv4;
 Event evt , evt2;
 Event * outQueue;
@@ -45,9 +41,9 @@ void initTimerEvent(TimerEvent * event, TimerEvent *next ,EventType type,
 
 // if currentEvent-> next > newEvent
 void test_eventCompareForTime(void){
-    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,50);
-    initTimerEvent(&timeEv2, &timeEv3 ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,30);
-    initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,120);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
+    initTimerEvent(&timeEv2, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,30);
+    initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,NULL,120);
     outValue=eventCompareForTime (&timeEv2, &timeEv);
     TEST_ASSERT_EQUAL(1,outValue);
     TEST_ASSERT_EQUAL(50-30,timeEv.time);
@@ -55,8 +51,8 @@ void test_eventCompareForTime(void){
 
 // if currentEvent-> next is NULL
 void test_eventCompareForTime_current_next_NULL(void){
-    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,50);
-    initTimerEvent(&timeEv2, NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,30);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
+    initTimerEvent(&timeEv2, NULL,BUTTON_PRESSED_EVENT,NULL,30);
     outValue=eventCompareForTime (&timeEv2, &timeEv);
     TEST_ASSERT_EQUAL(1,outValue);
     TEST_ASSERT_EQUAL(20,timeEv.time);
@@ -64,9 +60,9 @@ void test_eventCompareForTime_current_next_NULL(void){
 
 // if currentEvent-> next is smaller than new newEvent time
 void test_eventCompareForTime_current_next_smaller(void){
-    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,50);
-    initTimerEvent(&timeEv2, &timeEv3,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,30);
-    initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,10);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
+    initTimerEvent(&timeEv2, &timeEv3,BUTTON_PRESSED_EVENT,NULL,30);
+    initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,NULL,10);
     outValue=eventCompareForTime (&timeEv2, &timeEv);
     TEST_ASSERT_EQUAL(0,outValue);
     TEST_ASSERT_EQUAL(20,timeEv.time);

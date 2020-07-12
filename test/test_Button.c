@@ -1,12 +1,14 @@
 #include "unity.h"
+#include "ButtonAndBlinkyQueue.h"
 #include "mock_ButtonSM.h"
 #include "mock_Time.h"
 #include "mock_TimerEvent.h"
-#include "mock_Event.h"
+#include "mock_EventQueue.h"
 #include "mock_Hardware.h"
 #include "mock_Irq.h"
 #include "mock_Exti.h"
 #include "Button.h"
+#include "Event.h"
 #include <stdint.h>
 #include "StateMachine.h"
 #include "CustomAssert.h"
@@ -18,7 +20,7 @@ extern EventType expectedButtonState;
 void setUp(void){}
 void tearDown(void){}
 
-void initEvent(Event * event, ListItem * next ,EventType type,
+void initEvent(Event * event, Event * next ,EventType type,
                GenericStateMachine * stateMachine,void* data){
     event->next = next;
     event->type = type;
@@ -45,7 +47,7 @@ void test_convertEventTypeIntoButtonstate_NO_EVENT(void){
 void test_rawButtonEventRequest_same_event(void){
     extiSetInterruptMaskRegister_Expect(exti,PIN_0,MASKED);
     readPhysicalButton_ExpectAndReturn(0);
-    eventEnqueue_Expect(&evt);
+    eventEnqueue_Expect(&buttonBlinkyEventQueue,&evt);
     extiSetInterruptMaskRegister_Expect(exti,PIN_0,NOT_MASKED);
     rawButtonEventRequest(&evt , BUTTON_RELEASED_EVENT);
     TEST_ASSERT_NULL(buttonEventPtr);
@@ -66,7 +68,7 @@ void test_rawButtonEventRequest_NULL_event(void){
 
 void test_buttonEventISR_buttonEventPtr_is_there(void){
     readPhysicalButton_ExpectAndReturn(0);
-    eventEnqueue_Expect(&evt);
+    eventEnqueue_Expect(&buttonBlinkyEventQueue,&evt);
     buttonEventISR();
     TEST_ASSERT_NULL(buttonEventPtr);
 }

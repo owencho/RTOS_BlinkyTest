@@ -31,8 +31,9 @@
 #include "Hardware.h"
 #include "Common.h"
 #include "BaseAddress.h"
-#include "Event.h"
+#include "EventQueue.h"
 #include "Blinky.h"
+#include"ButtonAndBlinkyQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -129,7 +130,7 @@ int main(void)
 
   while (1)
   {
-	if(eventDequeue(&event))
+	if(eventDequeue(&buttonBlinkyEventQueue,&event))
 		event->stateMachine->callback(event);
     /* USER CODE END WHILE */
 
