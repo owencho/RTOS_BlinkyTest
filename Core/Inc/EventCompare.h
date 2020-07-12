@@ -10,6 +10,6 @@
 #include "Event.h"
 #include <stdlib.h>
 #include "TimerEvent.h"
-int eventCompareForTime (TimerEvent *currentEvent, TimerEvent * newEvent);
-
+int eventCompareForAddingTimeEvent (TimerEvent *currentEvent, TimerEvent * newEvent);
+int eventCompareSameTimeEvent(TimerEvent *currentEvent, TimerEvent * deleteEvent);
 #endif /* INC_EVENTCOMPARE_H_ */

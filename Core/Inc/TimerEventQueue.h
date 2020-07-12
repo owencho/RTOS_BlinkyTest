@@ -17,7 +17,7 @@ void incTick(TimerEventQueue * timerEventQueue);
 void * timerEventDequeue(TimerEventQueue * timerEventQueue);
 void checkAndAddTimerEvent(TimerEventQueue * timerEventQueue,TimerEvent * event);
 void timerEventEnqueue(TimerEventQueue * timerEventQueue,TimerEvent * event);
-
+void * timerEventDequeueSelectedEvent(TimerEventQueue * timerEventQueue,TimerEvent * deleteEvent);
 int timerEventQueueGetRelativeTick(TimerEventQueue * timerEventQueue);
 int timerEventQueueGetCount(TimerEventQueue * timerEventQueue);
 TimerEvent * timerEventQueueGetCurrentEvent(TimerEventQueue * timerEventQueue);

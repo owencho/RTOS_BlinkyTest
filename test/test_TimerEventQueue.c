@@ -420,6 +420,203 @@ void test_timerEventRequest_for_second_item_set_80ms_after_tick_ady_40ms_front(v
     TEST_ASSERT_NULL(outputTimerEvent);
     fakeCheckIRQ(__LINE__);
 }
+/*
+*             (relative tick is 5)
+*               timerEv4          timerEv3        timerEv     timerEv2
+*                 10       ----->   15      ---->   25   --->    37
+*             (dequeue)
+*               timerEv3        timerEv     timerEv2
+*                 20      ---->   25   --->    37
+*        |
+*        0(relativeTick)
+*/
+void test_timerEventDequeueSelectedEvent_delete_head(void){
+    initEventQueue(&timerEventQueueList, &timeEv4 ,&timeEv2,4,5);
+    initTimerEvent(&timeEv4, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    initTimerEvent(&timeEv3, &timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    initTimerEvent(&timeEv, &timeEv2 ,BUTTON_PRESSED_EVENT,NULL,25);
+    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,NULL,37);
+    disableIRQ_StubWithCallback(fake_disableIRQ);
+    enableIRQ_StubWithCallback(fake_enableIRQ);
+    timerEventDequeueSelectedEvent(&timerEventQueueList,&timeEv4);
+    TEST_ASSERT_EQUAL(3,timerEventQueueList.count);
+
+    outputTimerEvent=(TimerEvent*)getCurrentListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv,BUTTON_PRESSED_EVENT,
+                                  NULL,20);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv2 ,BUTTON_PRESSED_EVENT,
+                                  NULL,25);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,BUTTON_PRESSED_EVENT,
+                                  NULL,37);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,timerEventQueueList.relativeTick);
+    fakeCheckIRQ(__LINE__);
+}
+
+/*
+*             (relative tick is 5)
+*               timerEv4          timerEv3        timerEv     timerEv2
+*                 10       ----->   15      ---->   25   --->    37
+*             (dequeueSelectedEvent)
+*               timerEv4          timerEv3        timerEv
+*                 10       ----->   15      ---->   25
+*        |
+*        5(relativeTick)
+*/
+void test_timerEventDequeueSelectedEvent_delete_tail(void){
+    initEventQueue(&timerEventQueueList, &timeEv4 ,&timeEv2,4,5);
+    initTimerEvent(&timeEv4, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    initTimerEvent(&timeEv3, &timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    initTimerEvent(&timeEv, &timeEv2 ,BUTTON_PRESSED_EVENT,NULL,25);
+    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,NULL,37);
+    disableIRQ_StubWithCallback(fake_disableIRQ);
+    enableIRQ_StubWithCallback(fake_enableIRQ);
+    timerEventDequeueSelectedEvent(&timerEventQueueList,&timeEv2);
+    TEST_ASSERT_EQUAL(3,timerEventQueueList.count);
+
+    outputTimerEvent=(TimerEvent*)getCurrentListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3,BUTTON_PRESSED_EVENT,
+                                  NULL,10);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv,BUTTON_PRESSED_EVENT,
+                                  NULL,15);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,BUTTON_PRESSED_EVENT,
+                                  NULL,25);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(5,timerEventQueueList.relativeTick);
+    fakeCheckIRQ(__LINE__);
+}
+
+/*
+*             (relative tick is 5)
+*               timerEv4          timerEv3        timerEv     timerEv2
+*                 10       ----->   15      ---->   25   --->    37
+*             (dequeueSelectedEvent)
+*               timerEv4          timerEv3        timerEv2
+*                 10       ----->   15      ---->   62
+*        |
+*        5(relativeTick)
+*/
+void test_timerEventDequeueSelectedEvent_delete_middle(void){
+    initEventQueue(&timerEventQueueList, &timeEv4 ,&timeEv2,4,5);
+    initTimerEvent(&timeEv4, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    initTimerEvent(&timeEv3, &timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    initTimerEvent(&timeEv, &timeEv2 ,BUTTON_PRESSED_EVENT,NULL,25);
+    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,NULL,37);
+    disableIRQ_StubWithCallback(fake_disableIRQ);
+    enableIRQ_StubWithCallback(fake_enableIRQ);
+    timerEventDequeueSelectedEvent(&timerEventQueueList,&timeEv);
+    TEST_ASSERT_EQUAL(3,timerEventQueueList.count);
+
+    outputTimerEvent=(TimerEvent*)getCurrentListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv3,BUTTON_PRESSED_EVENT,
+                                  NULL,10);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv2,BUTTON_PRESSED_EVENT,
+                                  NULL,15);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,BUTTON_PRESSED_EVENT,
+                                  NULL,62);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(5,timerEventQueueList.relativeTick);
+    fakeCheckIRQ(__LINE__);
+}
+/*
+*             (relative tick is 5)
+*               timerEv4          timerEv3        timerEv
+*                 10       ----->   15      ---->   25
+*             (delete timerEv2)
+*               timerEv4          timerEv3        timerEv
+*                 10       ----->   15      ---->   25
+*        |
+*        5(relativeTick)
+*/
+void test_timerEventDequeueSelectedEvent_delete_something_not_inside_empty(void){
+    initEventQueue(&timerEventQueueList, &timeEv4 ,&timeEv,3,5);
+    initTimerEvent(&timeEv4, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    initTimerEvent(&timeEv3, &timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    disableIRQ_StubWithCallback(fake_disableIRQ);
+    enableIRQ_StubWithCallback(fake_enableIRQ);
+    timerEventDequeueSelectedEvent(&timerEventQueueList,&timeEv2);
+    TEST_ASSERT_EQUAL(3,timerEventQueueList.count);
+
+    outputTimerEvent=(TimerEvent*)getCurrentListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(5,timerEventQueueList.relativeTick);
+    fakeCheckIRQ(__LINE__);
+}
+
+void test_timerEventDequeueSelectedEvent_eventQueue_NULL(void){
+    initEventQueue(&timerEventQueueList, &timeEv4 ,&timeEv,3,5);
+    initTimerEvent(&timeEv4, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    initTimerEvent(&timeEv3, &timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    disableIRQ_StubWithCallback(fake_disableIRQ);
+    enableIRQ_StubWithCallback(fake_enableIRQ);
+    TEST_ASSERT_NULL(timerEventDequeueSelectedEvent(NULL,&timeEv2));
+    TEST_ASSERT_EQUAL(3,timerEventQueueList.count);
+    fakeCheckIRQ(__LINE__);
+}
+/*
+*             (relative tick is 5)
+*               timerEv4          timerEv3        timerEv
+*                 10       ----->   15      ---->   25
+*             (delete item NULL)
+*               timerEv4          timerEv3        timerEv
+*                 10       ----->   15      ---->   25
+*        |
+*        5(relativeTick)
+*/
+void test_timerEventDequeueSelectedEvent_delete_item_NULL(void){
+    initEventQueue(&timerEventQueueList, &timeEv4 ,&timeEv,3,5);
+    initTimerEvent(&timeEv4, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    initTimerEvent(&timeEv3, &timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    initTimerEvent(&timeEv2, NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    disableIRQ_StubWithCallback(fake_disableIRQ);
+    enableIRQ_StubWithCallback(fake_enableIRQ);
+    TEST_ASSERT_NULL(timerEventDequeueSelectedEvent(&timerEventQueueList,NULL));
+    TEST_ASSERT_EQUAL(3,timerEventQueueList.count);
+
+    outputTimerEvent=(TimerEvent*)getCurrentListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,10);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,&timeEv ,BUTTON_PRESSED_EVENT,NULL,15);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_EQUAL_TIMER_EVENT(outputTimerEvent,NULL ,BUTTON_PRESSED_EVENT,NULL,25);
+    outputTimerEvent= (TimerEvent*)getNextListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(5,timerEventQueueList.relativeTick);
+    fakeCheckIRQ(__LINE__);
+}
+
+void test_timerEventDequeueSelectedEvent_queue_is_empty(void){
+    initEventQueue(&timerEventQueueList, NULL ,NULL,0,0);
+    disableIRQ_StubWithCallback(fake_disableIRQ);
+    enableIRQ_StubWithCallback(fake_enableIRQ);
+    TEST_ASSERT_NULL(timerEventDequeueSelectedEvent(&timerEventQueueList,&timeEv2));
+    TEST_ASSERT_EQUAL(0,timerEventQueueList.count);
+
+    outputTimerEvent=(TimerEvent*)getCurrentListItem((List*)&timerEventQueueList);
+    TEST_ASSERT_NULL(outputTimerEvent);
+    TEST_ASSERT_EQUAL(0,timerEventQueueList.relativeTick);
+    fakeCheckIRQ(__LINE__);
+}
 
 void test_timerEventQueueGetRelativeTick(void){
     //resetTick

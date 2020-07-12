@@ -33,47 +33,71 @@ void initTimerEvent(TimerEvent * event, TimerEvent *next ,EventType type,
     event->stateMachine = stateMachine;
     event->time = time;
 }
-//eventCompareForTime(TimerEvent *currentEvent, TimerEvent * newEvent)
+//eventCompareForAddingTimeEvent(TimerEvent *currentEvent, TimerEvent * newEvent)
 // if time in currentEvent->next > newEvent
 // return 1
 // if time in newEvent > currentEvent->next
 // return 0 then newEvent time is deducted with oldEvent
 
 // if currentEvent-> next > newEvent
-void test_eventCompareForTime(void){
+void test_eventCompareForAddingTimeEvent(void){
     initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
     initTimerEvent(&timeEv2, &timeEv3 ,BUTTON_PRESSED_EVENT,NULL,30);
     initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,NULL,120);
-    outValue=eventCompareForTime (&timeEv2, &timeEv);
+    outValue=eventCompareForAddingTimeEvent (&timeEv2, &timeEv);
     TEST_ASSERT_EQUAL(1,outValue);
     TEST_ASSERT_EQUAL(50-30,timeEv.time);
 }
 
 // if currentEvent-> next is NULL
-void test_eventCompareForTime_current_next_NULL(void){
+void test_eventCompareForAddingTimeEvent_current_next_NULL(void){
     initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
     initTimerEvent(&timeEv2, NULL,BUTTON_PRESSED_EVENT,NULL,30);
-    outValue=eventCompareForTime (&timeEv2, &timeEv);
+    outValue=eventCompareForAddingTimeEvent (&timeEv2, &timeEv);
     TEST_ASSERT_EQUAL(1,outValue);
     TEST_ASSERT_EQUAL(20,timeEv.time);
 }
 
 // if currentEvent-> next is smaller than new newEvent time
-void test_eventCompareForTime_current_next_smaller(void){
+void test_eventCompareForAddingTimeEvent_current_next_smaller(void){
     initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
     initTimerEvent(&timeEv2, &timeEv3,BUTTON_PRESSED_EVENT,NULL,30);
     initTimerEvent(&timeEv3, NULL ,BUTTON_PRESSED_EVENT,NULL,10);
-    outValue=eventCompareForTime (&timeEv2, &timeEv);
+    outValue=eventCompareForAddingTimeEvent (&timeEv2, &timeEv);
     TEST_ASSERT_EQUAL(0,outValue);
     TEST_ASSERT_EQUAL(20,timeEv.time);
 }
 
-void test_eventCompareForTime_NULL_current(void){
-    outValue=eventCompareForTime (NULL, &timeEv);
+void test_eventCompareForAddingTimeEvent_NULL_current(void){
+    outValue=eventCompareForAddingTimeEvent (NULL, &timeEv);
     TEST_ASSERT_EQUAL(0,outValue);
 }
 
-void test_eventCompareForTime_NULL_new(void){
-    outValue=eventCompareForTime (&timeEv,NULL);
+void test_eventCompareForAddingTimeEvent_NULL_new(void){
+    outValue=eventCompareForAddingTimeEvent (&timeEv,NULL);
+    TEST_ASSERT_EQUAL(0,outValue);
+}
+
+void test_eventCompareSameTimeEvent_different(void){
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
+    initTimerEvent(&timeEv2, NULL,BUTTON_PRESSED_EVENT,NULL,30);
+    outValue=eventCompareSameTimeEvent (&timeEv2, &timeEv);
+    TEST_ASSERT_EQUAL(0,outValue);
+}
+
+void test_eventCompareSameTimeEvent_same(void){
+    initTimerEvent(&timeEv, NULL ,BUTTON_PRESSED_EVENT,NULL,50);
+    initTimerEvent(&timeEv2, NULL,BUTTON_PRESSED_EVENT,NULL,30);
+    outValue=eventCompareSameTimeEvent(&timeEv, &timeEv);
+    TEST_ASSERT_EQUAL(1,outValue);
+}
+
+void test_eventCompareSameTimeEvent_NULL_current(void){
+    outValue=eventCompareSameTimeEvent(NULL, &timeEv);
+    TEST_ASSERT_EQUAL(0,outValue);
+}
+
+void test_eventCompareSameTimeEvent_NULL_new(void){
+    outValue=eventCompareSameTimeEvent(&timeEv,NULL);
     TEST_ASSERT_EQUAL(0,outValue);
 }
