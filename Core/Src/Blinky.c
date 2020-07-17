@@ -96,10 +96,10 @@ void handleBlinkyStateMachine(Event *event){
             	  break;
             }
             else if(event->type == TIMEOUT_EVENT){
-				timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
-				sm->state=BLINK_ON;
-				turnLed(ON);
-				break;
+        				timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
+        				sm->state=BLINK_ON;
+        				turnLed(ON);
+        				break;
             }
             break;
         case LED_OFF_BUTTON_HOLD:
