@@ -4,6 +4,9 @@
 #include "mock_EventQueue.h"
 #include "Event.h"
 #include "ButtonAndBlinkyQueue.h"
+#include "Exception.h"
+#include "CExceptionConfig.h"
+#include "CException.h"
 #include "mock_Hardware.h"
 #include "mock_Exti.h"
 #include "mock_Irq.h"
@@ -15,10 +18,12 @@
 #include "Blinky.h"
 #include "ButtonSM.h"
 #include "mock_Led.h"
+#include "BlinkyButtonIntegration.h"
 TimerEvent timeEv;
-Event evt , buttonEv;
+Event evt ,evt1,evt2,evt3, buttonEv;
 BlinkyStateMachine blinkySM;
 ButtonStateMachine  buttonSM;
+CEXCEPTION_T ex;
 void setUp(void){}
 void tearDown(void){}
 
@@ -41,26 +46,51 @@ void initEvent(Event * event, Event * next ,EventType type,
     event->data = data;
 }
 
-#define RETURN(x) ((void*)x)
+#define RETURN(x) ((uintptr_t)(x))
 #define NOTHING (NULL)
 #define NONE (NULL)
 
 void fakeButtonBlinkySequence(FakeSequence sequence[]){
-    turnLed_StubWithCallBack(fake_turnLed);
-    buttonEventRequest_StubWithCallBack(fake_buttonEventRequest);
-    timerEventRequest_StubWithCallBack(fake_timerEventRequest);
-    rawButtonEventRequest_StubWithCallBack(fake_rawButtonEventRequest);
-    eventEnqueue_StubWithCallBack(fake_eventEnqueue);
-    initFakeButtonBlinkySequence(sequence);
+    turnLed_StubWithCallback(fake_turnLed);
+    timerEventRequest_StubWithCallback(fake_timerEventRequest);
+    rawButtonEventRequest_StubWithCallback(fake_rawButtonEventRequest);
+    eventEnqueue_StubWithCallback(fake_eventEnqueue);
+    initFakeBlinkyButtonSequence(sequence);
 }
 
-void test_blinkyInitStateMachine(void){
+void test_handleBlinkyStateMachine_BUTTON_PRESSED_EVENT_check_blinky(void){
 
-    FakeSequence sequenceX[] =
-    {expect_turnLed(ON),RETURN(NOTHING)},
-    {expect_buttonEventRequest(&event->stateMachine->blinkyEvent,RELEASE),RETURN(NOTHING)},
-    {expect_handleButtonStateMachine(&event),RETURN(NOTHING)},
+    initEvent(&evt1,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&buttonSM,NULL);
+    initEvent(&evt2,NULL,TIMEOUT_EVENT,(GenericStateMachine *)&buttonSM,NULL);
+    initEvent(&evt3,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
+    FakeSequence sequenceX[] ={
+    {expect_rawButtonEventRequest(&buttonSM.buttonEvent,PRESS),RETURN(NOTHING)}, //0
+    {call_handleButtonStateMachine(&evt1),RETURN(NOTHING)}, //1
+    // timer for button debouncing
+    {expect_timerEventRequest(&buttonBlinkyTimerEventQueue,&buttonSM.timerEvent,100),RETURN(NOTHING)}, //2
+    //when timer expired and blinkyEvent get queued into eventQueue
+    {call_handleButtonStateMachine(&evt2),RETURN(NOTHING)}, //3
+    {expect_eventEnqueue(&buttonBlinkyEventQueue,&blinkySM.blinkyEvent),RETURN(NOTHING)}, //4
+    {expect_rawButtonEventRequest(&evt2,BUTTON_RELEASED_EVENT),RETURN(NOTHING)}, //5
+    // blinky was called from the event Queue
+    {call_handleBlinkyStateMachine(&evt3),RETURN(NOTHING)}, //6
+    {expect_turnLed(ON),RETURN(NOTHING)}, //seq7
+    {NULL,RETURN(NOTHING)} //end of sequence
+    };
+    fakeButtonBlinkySequence(sequenceX);
+    Try{
+        buttonInitStateMachine(&buttonSM);
+        blinkyInitStateMachine(&blinkySM,&buttonSM);
 
+        while(triggerSequence()){
+
+        }
+
+    }
+    Catch(ex){
+        dumpException(ex);
+        TEST_FAIL_MESSAGE("Do not expect any exception to be thrown");
+    }
 
 
 }
