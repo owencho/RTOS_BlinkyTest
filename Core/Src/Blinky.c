@@ -11,12 +11,16 @@ void blinkyInitStateMachine(BlinkyStateMachine * sm,ButtonStateMachine * button)
     if(sm == NULL){
         return;
     }
-    sm->state = LED_OFF_BUTTON_RELEASED;
     sm->isButtonReleased = 0;
     sm->callback =(Callback) handleBlinkyStateMachine;
     sm->button = button;
     sm->blinkyEvent.stateMachine= (GenericStateMachine *)sm;
     sm->timerEvent.stateMachine = (GenericStateMachine *)sm;
+}
+
+void blinkyStartStateMachine(BlinkyStateMachine * sm){
+    sm->state = LED_OFF_BUTTON_RELEASED;
+    turnLed(OFF);
     buttonEventRequest(&sm->blinkyEvent  ,PRESS);
 }
 
@@ -31,12 +35,6 @@ BlinkyStateMachine * blinkyCreateStateMachine(ButtonStateMachine * button){
 void handleBlinkyStateMachine(Event *event){
     BlinkyStateMachine * sm =(BlinkyStateMachine*) event->stateMachine;
     switch(sm->state){
-        case BLINKY_START :
-              turnLed(OFF);
-              sm->state=LED_OFF_BUTTON_RELEASED;
-              buttonEventRequest(&sm->blinkyEvent ,PRESS);
-              break;
-
         case LED_OFF_BUTTON_RELEASED:
             if(event->type == BUTTON_PRESSED_EVENT){
               	  turnLed(ON);

@@ -17,6 +17,9 @@ void buttonInitStateMachine(ButtonStateMachine * sm){
     sm->buttonStatus = RELEASE;
     sm->buttonEvent.stateMachine =(GenericStateMachine *) sm;
     sm->timerEvent.stateMachine = (GenericStateMachine *)sm;
+}
+
+void buttonStartStateMachine(ButtonStateMachine * sm){
     rawButtonEventRequest(&sm->buttonEvent,PRESS);
     //eventRequest for PRESS button
 }

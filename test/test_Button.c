@@ -2,11 +2,12 @@
 #include "ButtonAndBlinkyQueue.h"
 #include "mock_ButtonSM.h"
 #include "mock_Time.h"
-#include "mock_TimerEvent.h"
+#include "mock_TimerEventQueue.h"
 #include "mock_EventQueue.h"
 #include "mock_Hardware.h"
 #include "mock_Irq.h"
 #include "mock_Exti.h"
+#include "TimerEvent.h"
 #include "Button.h"
 #include "Event.h"
 #include <stdint.h>

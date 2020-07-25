@@ -24,6 +24,7 @@ struct ButtonStateMachine {
 
 PressReleaseState getButtonState(ButtonStateMachine *sm);
 void buttonInitStateMachine(ButtonStateMachine * sm);
+void buttonStartStateMachine(ButtonStateMachine * sm);
 void handleButtonStateMachine(Event * event);
 void buttonEventRequest(Event * evt ,PressReleaseState state);
 int convertEventTypeintoButtonState(EventType state);

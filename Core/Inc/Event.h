@@ -9,9 +9,9 @@ typedef struct Event Event;
 
 struct Event {
   	Event * next;
-    void * data;
   	EventType type;
   	GenericStateMachine * stateMachine;
+    void * data;
 };
 
 #endif // EVENT_H

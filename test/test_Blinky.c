@@ -42,10 +42,12 @@ void initEvent(Event * event, Event * next ,EventType type,
 }
 
 void test_blinkyInitStateMachine(void){
+    turnLed_Expect(OFF);
     buttonEventRequest_Expect(&blinkySM.blinkyEvent,PRESS);
     blinkyInitStateMachine(&blinkySM,&buttonSM);
+    blinkyStartStateMachine(&blinkySM);
     TEST_ASSERT_EQUAL(blinkySM.callback,handleBlinkyStateMachine );
-    TEST_ASSERT_EQUAL(blinkySM.state,LED_OFF_BUTTON_RELEASED );
+    TEST_ASSERT_EQUAL(blinkySM.state,LED_OFF_BUTTON_RELEASED);
     TEST_ASSERT_EQUAL(blinkySM.isButtonReleased,0 );
     TEST_ASSERT_EQUAL(blinkySM.button,&buttonSM );
     TEST_ASSERT_EQUAL(blinkySM.timerEvent.stateMachine,&blinkySM );

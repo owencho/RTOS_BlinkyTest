@@ -2,6 +2,7 @@
 #include "ButtonSM.h"
 #include "Blinky.h"
 #include "Event.h"
+#include "Button.h"
 #include "EventQueue.h"
 #include "TimerEvent.h"
 #include "TimerEventQueue.h"
@@ -10,6 +11,8 @@
 #include "CException.h"
 #include "CExceptionConfig.h"
 #include "BlinkyButtonError.h"
+#include "TimerEventISR.h"
+#include "ButtonAndBlinkyQueue.h"
 #include <stdlib.h>
 #include <stdarg.h>
 
@@ -17,7 +20,7 @@ FakeSequence * seqPtr;
 int nextSeqIndex = 0 ;
 int seqIndex = 0;
 
-void initFakeBlinkyButtonSequence(FakeSequence sequence[]){
+void fakeButtonBlinkySequence(FakeSequence sequence[]){
     seqPtr = sequence;
     seqIndex = 0 ;
     nextSeqIndex = 0 ;
@@ -50,6 +53,15 @@ uintptr_t blinkyButtonSequenceStateMachine(uintptr_t funcPtr , void *data){
         }
         else if(funcPtr == (uintptr_t)handleBlinkyStateMachine){
             handleBlinkyStateMachine((Event*)expectedArgs[0]);
+        }
+        else if(funcPtr == (uintptr_t)fake_mainExecutiveLoop){
+            fake_mainExecutiveLoop();
+        }
+        else if(funcPtr == (uintptr_t)fake_setTimerTick){
+            fake_setTimerTick((int)expectedArgs[0]);
+        }
+        else if(funcPtr == (uintptr_t)fake_buttonInterrupt){
+            fake_buttonInterrupt();
         }
         else{
             throwException(ERR_FUNCTION_CALLED
@@ -111,6 +123,8 @@ uintptr_t blinkyButtonSequenceStateMachine(uintptr_t funcPtr , void *data){
     freeFakeInfo(info);
     return seq->retVal;
 }
+
+
 void freeFakeInfo(FakeInfo * info){
     if(info->inArgs){
         free(info->inArgs);
@@ -149,23 +163,65 @@ FakeInfo * call_handleButtonStateMachine(Event * event){
 FakeInfo * call_handleBlinkyStateMachine(Event * event){
     return createFakeInfo(handleBlinkyStateMachine,1,1,(uintptr_t)event);
 }
+FakeInfo * simulate_mainExecutiveLoop(){
+    return createFakeInfo(fake_mainExecutiveLoop,1,0);
+}
+
+FakeInfo * simulate_setTimerTick(int tick){
+    return createFakeInfo(fake_setTimerTick,1,1,(uintptr_t)tick);
+}
+
+FakeInfo * simulate_buttonInterrupt(){
+    return createFakeInfo(fake_buttonInterrupt,1,0);
+}
 
 FakeInfo * expect_turnLed(OnOffState state){
     return createFakeInfo(fake_turnLed,0,1,(uintptr_t)state);
 }
 
 FakeInfo * expect_rawButtonEventRequest(Event * event , EventType state){
-    return createFakeInfo(fake_rawButtonEventRequest,0,2,(uintptr_t)event,(uintptr_t)state);
+    return createFakeInfo(fake_rawButtonEventRequest,0,2,(uintptr_t)event,
+                          (uintptr_t)state);
 }
 
 FakeInfo * expect_eventEnqueue(EventQueue * queue,Event * event){
-    return createFakeInfo(fake_eventEnqueue,0,2,(uintptr_t)queue,(uintptr_t)event);
+    return createFakeInfo(fake_eventEnqueue,0,2,(uintptr_t)queue,
+                          (uintptr_t)event);
 }
 
-FakeInfo * expect_timerEventRequest(TimerEventQueue * timerEventQueue,TimerEvent * event,int expiryPeriod){
-    return createFakeInfo(fake_timerEventRequest,0,3,(uintptr_t)timerEventQueue,(uintptr_t)event,(uintptr_t)expiryPeriod);
+FakeInfo * expect_timerEventRequest(TimerEventQueue * timerEventQueue,
+                                    TimerEvent * event,int expiryPeriod){
+    return createFakeInfo(fake_timerEventRequest,0,3,(uintptr_t)timerEventQueue,
+                         (uintptr_t)event,(uintptr_t)expiryPeriod);
 }
+FakeInfo * expect_extiSetInterruptMaskRegister(ExtiRegs *extiLoc , int pin,RequestMasked mode){
+    return createFakeInfo(fake_extiSetInterruptMaskRegister,0,3,(uintptr_t)extiLoc,
+                          (uintptr_t)pin,(uintptr_t)mode);
+}
+FakeInfo * expect_readPhysicalButton(){
+    return createFakeInfo(fake_readPhysicalButton,0,0);
+}
+
+
 // called when the function is called  the main function
+
+void fake_buttonInterrupt(){
+    buttonEventISR();
+}
+
+void fake_mainExecutiveLoop(){
+    Event * event;
+    if(eventDequeue(&buttonBlinkyEventQueue,&event))
+        event->stateMachine->callback(event);
+}
+
+void fake_setTimerTick(int value){
+    for(int i = 0 ; i < value ;i++){
+        incTick(&buttonBlinkyTimerEventQueue);
+        timerEventISR(&buttonBlinkyEventQueue,&buttonBlinkyTimerEventQueue);
+    }
+}
+
 void fake_turnLed(OnOffState state, int callNumber){
     uintptr_t * args = malloc(sizeof(uintptr_t));
     args[0] = (uintptr_t)state;
@@ -192,4 +248,15 @@ void fake_timerEventRequest(TimerEventQueue * timerEventQueue,TimerEvent * event
     args[1] = (uintptr_t)event;
     args[2] = (uintptr_t)expiryPeriod;
     blinkyButtonSequenceStateMachine((uintptr_t)fake_timerEventRequest,(void*)args);
+}
+void fake_extiSetInterruptMaskRegister(ExtiRegs *extiLoc , int pin,RequestMasked mode, int callNumber){
+    uintptr_t * args = malloc(sizeof(uintptr_t)*3);
+    args[0] = (uintptr_t)extiLoc;
+    args[1] = (uintptr_t)pin;
+    args[2] = (uintptr_t)mode;
+    blinkyButtonSequenceStateMachine((uintptr_t)fake_extiSetInterruptMaskRegister,(void*)args);
+}
+
+int fake_readPhysicalButton(int callNumber){
+    return blinkyButtonSequenceStateMachine((uintptr_t)fake_readPhysicalButton,NULL);
 }

@@ -43,6 +43,7 @@ void initEvent(Event * event, Event * next ,EventType type,
 void test_ButtonInitStateMachine(void){
     rawButtonEventRequest_Expect(&buttonSM.buttonEvent,PRESS);
     buttonInitStateMachine(&buttonSM);
+    buttonStartStateMachine(&buttonSM);
     TEST_ASSERT_EQUAL(buttonSM.callback,handleButtonStateMachine );
     TEST_ASSERT_EQUAL(buttonSM.state,BUTTON_RELEASED );
     TEST_ASSERT_EQUAL(buttonSM.buttonStatus,RELEASE );
@@ -55,6 +56,7 @@ void test_ButtonInitStateMachine(void){
 void test_ButtonInitStateMachine_released_state_without_request(void){
     rawButtonEventRequest_Expect(&buttonSM.buttonEvent,PRESS);
     buttonInitStateMachine(&buttonSM);
+    buttonStartStateMachine(&buttonSM);
     initEvent(&evt,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&buttonSM,NULL);
 
     handleButtonStateMachine(&evt);
@@ -64,6 +66,7 @@ void test_ButtonInitStateMachine_released_state_without_request(void){
 void test_ButtonInitStateMachine_released_state_with_request_but_different_event(void){
     rawButtonEventRequest_Expect(&buttonSM.buttonEvent,PRESS);
     buttonInitStateMachine(&buttonSM);
+    buttonStartStateMachine(&buttonSM);
     initEvent(&evt,NULL,TIMEOUT_EVENT,(GenericStateMachine *)&buttonSM,NULL);
     buttonEventRequest(&evtForBlinky,PRESS);
 
@@ -74,6 +77,7 @@ void test_ButtonInitStateMachine_released_state_with_request_but_different_event
 void test_ButtonInitStateMachine_released_state_with_request_from_blinky(void){
     rawButtonEventRequest_Expect(&buttonSM.buttonEvent,PRESS);
     buttonInitStateMachine(&buttonSM);
+    buttonStartStateMachine(&buttonSM);
     initEvent(&evt,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&buttonSM,NULL);
     initEvent(&evtForBlinky,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine *)&blinkySM,NULL);
     buttonEventRequest(&evtForBlinky,PRESS);

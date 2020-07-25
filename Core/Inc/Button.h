@@ -2,6 +2,7 @@
 #define BUTTON_H
 
 #include "Event.h"
+
 typedef enum{
     RELEASE,PRESS
 } PressReleaseState;
