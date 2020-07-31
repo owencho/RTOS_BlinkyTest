@@ -1,4 +1,3 @@
-#include "unity.h"
 #include "Exception.h"
 #include "CException.h"
 #include <stdio.h>
@@ -6,9 +5,6 @@
 #include <malloc.h>
 #include <stdarg.h>
 
-void dumpExceptionString(Exception *ex,UNITY_LINE_TYPE lineNumber){
-    printf("ERROR on line %d : %s \n",lineNumber,ex->errorMessage);
-}
 
 void freeException(Exception *ex){
     if(ex)

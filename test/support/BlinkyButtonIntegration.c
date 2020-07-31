@@ -7,6 +7,7 @@
 #include "TimerEvent.h"
 #include "TimerEventQueue.h"
 #include "Led.h"
+#include "CustomAssert.h"
 #include "Exception.h"
 #include "CException.h"
 #include "CExceptionConfig.h"
@@ -35,8 +36,7 @@ int triggerSequence(){
         return blinkyButtonSequenceStateMachine(info->funcPtr , NULL);
     }
     else{
-        throwException(ERR_SEQUENCE_STOP
-                      ,"Sequence stop prematurely at seq %d",nextSeqIndex);
+        testReportFailure("Sequence stop prematurely at seq %d",nextSeqIndex);
     }
 
 }
@@ -67,25 +67,22 @@ uintptr_t blinkyButtonSequenceStateMachine(uintptr_t funcPtr , void *data){
             fake_rawButtonEventRequest((Event *)expectedArgs[0],(EventType)expectedArgs[1]);
         }
         else{
-            throwException(ERR_FUNCTION_CALLED
-                          ,"should call func is triggered at seq %d but the funcPtr is not to be called"
-                          ,seqIndex);
+            testReportFailure("should call func is triggered at seq %d but the funcPtr is not to be called"
+                              ,seqIndex);
         }
         return 1 ;
     }
 
 
     if(info->funcPtr != funcPtr){
-        throwException(ERR_DIFFERENT_FUNCTION_CALLED
-                      ," expected function called is different as actual function at sequence %d"
-                      ,seqIndex);
+        testReportFailure("expected function called is different as actual function at sequence %d"
+                         ,seqIndex);
     }
     else if (funcPtr == (uintptr_t)fake_turnLed){
         uintptr_t * expectedArgs = (uintptr_t *)info->inArgs;
         uintptr_t * actualArgs = (uintptr_t *)data;
         if(actualArgs[0]!=expectedArgs[0]){
-            throwException(ERR_DIFFERENT_INPUT_PARAMETER
-                          ," expected input parameter in turnLed is different as actual input parameter for turnLed at sequence %d"
+            testReportFailure(" expected input parameter in turnLed is different as actual input parameter for turnLed at sequence %d"
                           ,seqIndex);
         }
     }
@@ -94,8 +91,7 @@ uintptr_t blinkyButtonSequenceStateMachine(uintptr_t funcPtr , void *data){
         uintptr_t * actualArgs = (uintptr_t *)data;
         for(int i=0 ; i<2 ; i++){
             if(actualArgs[i]!=expectedArgs[i]){
-                throwException(ERR_DIFFERENT_INPUT_PARAMETER
-                              ," expected input parameter [%d] in rawButtonEventRequest is different as actual input parameter for rawButtonEventRequest at sequence %d"
+                testReportFailure(" expected input parameter [%d] in rawButtonEventRequest is different as actual input parameter for rawButtonEventRequest at sequence %d"
                               ,i,seqIndex);
             }
         }
@@ -105,8 +101,7 @@ uintptr_t blinkyButtonSequenceStateMachine(uintptr_t funcPtr , void *data){
         uintptr_t * actualArgs = (uintptr_t *)data;
         for(int i=0 ; i<2 ; i++){
             if(actualArgs[i]!=expectedArgs[i]){
-                throwException(ERR_DIFFERENT_INPUT_PARAMETER
-                              ," expected input parameter [%d] in eventEnqueue is different as actual input parameter for rawButtonEventRequest at sequence %d"
+                testReportFailure(" expected input parameter [%d] in eventEnqueue is different as actual input parameter for rawButtonEventRequest at sequence %d"
                               ,i,seqIndex);
             }
         }
@@ -116,8 +111,7 @@ uintptr_t blinkyButtonSequenceStateMachine(uintptr_t funcPtr , void *data){
         uintptr_t * actualArgs = (uintptr_t *)data;
         for(int i=0 ; i<3 ; i++){
             if(actualArgs[i]!=expectedArgs[i]){
-                throwException(ERR_DIFFERENT_INPUT_PARAMETER
-                              ," expected input parameter [%d] in timerEventRequest is different as actual input parameter for rawButtonEventRequest at sequence %d"
+                testReportFailure(" expected input parameter [%d] in timerEventRequest is different as actual input parameter for rawButtonEventRequest at sequence %d"
                               ,i,seqIndex);
             }
         }

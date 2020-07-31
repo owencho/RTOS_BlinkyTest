@@ -27,6 +27,7 @@
 #include "Blinky.h"
 #include "ButtonSM.h"
 #include "BlinkyButtonIntegration.h"
+#include "ExceptionTestSupport.h"
 
 TimerEvent timeEv;
 Event evt ,evt1,evt2,evt3, buttonEv;
