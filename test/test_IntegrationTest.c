@@ -35,8 +35,11 @@ ButtonStateMachine  buttonSM;
 extern EventQueue buttonBlinkyEventQueue;
 extern TimerEventQueue buttonBlinkyTimerEventQueue;
 CEXCEPTION_T ex;
+void clearEventQueue(EventQueue* queue , TimerEventQueue *timerQueue);
 void setUp(void){}
-void tearDown(void){}
+void tearDown(void){
+    clearEventQueue(&buttonBlinkyEventQueue,&buttonBlinkyTimerEventQueue);
+}
 
 void setUpBlinkySM(BlinkyStateMachine * sm, Callback callback,BlinkyState state,
                   uint32_t isButtonReleased,ButtonStateMachine * button){
@@ -194,10 +197,9 @@ void test_handleBlinkyStateMachine_from_LED_ON_to_BLINK_ON(void){
       }
 }
 
-// this test is to test BUTTON RELEASE EVENT FOR BLINK_ON to LED_OFF
+// this test is to test BUTTON PRESSED EVENT FOR BLINK_ON to LED_OFF
 // when the button was pressed
 void test_handleBlinkyStateMachine_from_BLINK_ON_to_LED_OFF(void){
-  clearEventQueue(&buttonBlinkyEventQueue,&buttonBlinkyTimerEventQueue);
   setUpBlinkySM(&blinkySM, (Callback)handleBlinkyStateMachine,BLINK_ON,0,&buttonSM);
   setUpButtonSM(&buttonSM, (Callback)handleButtonStateMachine,BUTTON_RELEASED,RELEASE);
   setUpEvent(&evt,NULL,BUTTON_RELEASED_EVENT,(GenericStateMachine*)&blinkySM,NULL);
@@ -228,6 +230,46 @@ void test_handleBlinkyStateMachine_from_BLINK_ON_to_LED_OFF(void){
     {simulate_mainExecutiveLoop(),NONE},
     // blinkyEvent was dequeued and handleBlinkyStateMachine was called
     // the led will turn OFF as it goes from BLINK_ON to LED_OFF
+    {expect_turnLed(OFF),RETURN(NOTHING)},
+    {NULL,RETURN(NOTHING)}
+    };
+    initFakeSequence(sequence);
+    extiSetInterruptMaskRegister_StubWithCallback(fake_doNothing);
+    Try{
+        while(triggerSequence()){
+
+        }
+        fakeCheckIRQ(__LINE__);
+    }
+    Catch(ex){
+        dumpException(ex);
+        TEST_FAIL_MESSAGE("Do not expect any exception to be thrown");
+    }
+}
+
+// this test is to test TIMEOUT_EVENT FOR BLINK_ON to BLINK_OFF
+void test_handleBlinkyStateMachine_from_BLINK_ON_to_BLINK_OFF(void){
+  setUpBlinkySM(&blinkySM, (Callback)handleBlinkyStateMachine,LED_ON,1,&buttonSM);
+  setUpButtonSM(&buttonSM, (Callback)handleButtonStateMachine,BUTTON_RELEASED,RELEASE);
+  setUpEvent(&evt,NULL,BUTTON_PRESSED_EVENT,(GenericStateMachine*)&blinkySM,NULL);
+  setUpEvent(&evt2,NULL,TIMEOUT_EVENT,(GenericStateMachine*)&buttonSM,NULL);
+  FakeSequence sequence[] ={
+    //simulate the rawButtonEventRequest to press
+    {call_handleBlinkyStateMachine(&evt)},
+    // simulate the main executive loop see is there any event to be called
+    {simulate_mainExecutiveLoop(),NONE},
+    // expected to have no event as timer is not expired yet
+    {simulate_setTimerTick(30),NONE},
+    // event in timerEventQueue are still remain inside as it is not expired yet
+    {simulate_mainExecutiveLoop(),NONE},
+    // we set timerTick again to expire the timerEvent
+    {simulate_setTimerTick(100),NONE},
+    // event in timerEventQueue are dequeued and it is queued into main EventQueue
+    {simulate_mainExecutiveLoop(),NONE},
+    // handleBlinkyStateMachine will be called in this Sequence
+    // timerEventRequest is called again in the stateMachine as the stateMachine is transitioning
+    // into blink_OFF where it also required timer to calculate the clock.
+    // and there we expect the Led to turn off as it is BlinkOff
     {expect_turnLed(OFF),RETURN(NOTHING)},
     {NULL,RETURN(NOTHING)}
     };

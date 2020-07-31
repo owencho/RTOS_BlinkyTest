@@ -113,7 +113,9 @@ int main(void)
   //event = initEventStruct();
   //initEventQueue();
   buttonInitStateMachine(&buttonSM);
+  buttonStartStateMachine(&buttonSM);
   blinkyInitStateMachine(&blinkySM,&buttonSM);
+  blinkyStartStateMachine(&blinkySM);
   // init for timer event
   //initEventTimerQueue();
 
