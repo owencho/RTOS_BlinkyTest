@@ -63,6 +63,9 @@ uintptr_t blinkyButtonSequenceStateMachine(uintptr_t funcPtr , void *data){
         else if(funcPtr == (uintptr_t)fake_buttonInterrupt){
             fake_buttonInterrupt();
         }
+        else if(funcPtr == (uintptr_t)fake_rawButtonEventRequest){
+            fake_rawButtonEventRequest((Event *)expectedArgs[0],(EventType)expectedArgs[1]);
+        }
         else{
             throwException(ERR_FUNCTION_CALLED
                           ,"should call func is triggered at seq %d but the funcPtr is not to be called"
@@ -163,6 +166,12 @@ FakeInfo * call_handleButtonStateMachine(Event * event){
 FakeInfo * call_handleBlinkyStateMachine(Event * event){
     return createFakeInfo(handleBlinkyStateMachine,1,1,(uintptr_t)event);
 }
+
+FakeInfo * simulate_rawButtonEventRequest(Event * event , EventType state){
+    return createFakeInfo(fake_rawButtonEventRequest,1,2,(uintptr_t)event,
+                          (uintptr_t)state);
+}
+
 FakeInfo * simulate_mainExecutiveLoop(){
     return createFakeInfo(fake_mainExecutiveLoop,1,0);
 }
@@ -178,12 +187,12 @@ FakeInfo * simulate_buttonInterrupt(){
 FakeInfo * expect_turnLed(OnOffState state){
     return createFakeInfo(fake_turnLed,0,1,(uintptr_t)state);
 }
-
+/*
 FakeInfo * expect_rawButtonEventRequest(Event * event , EventType state){
     return createFakeInfo(fake_rawButtonEventRequest,0,2,(uintptr_t)event,
                           (uintptr_t)state);
 }
-
+*/
 FakeInfo * expect_eventEnqueue(EventQueue * queue,Event * event){
     return createFakeInfo(fake_eventEnqueue,0,2,(uintptr_t)queue,
                           (uintptr_t)event);
@@ -227,14 +236,17 @@ void fake_turnLed(OnOffState state, int callNumber){
     args[0] = (uintptr_t)state;
     blinkyButtonSequenceStateMachine((uintptr_t)fake_turnLed,(void*)args);
 }
-
+void fake_rawButtonEventRequest(Event * event , EventType state){
+    rawButtonEventRequest(event ,state);
+}
+/*
 void fake_rawButtonEventRequest(Event * event , EventType state, int callNumber){
     uintptr_t * args = malloc(sizeof(uintptr_t)*2);
     args[0] = (uintptr_t)event;
     args[1] = (uintptr_t)state;
     blinkyButtonSequenceStateMachine((uintptr_t)fake_rawButtonEventRequest,(void*)args);
 }
-
+*/
 void fake_eventEnqueue(EventQueue * queue,Event * event, int callNumber){
     uintptr_t * args = malloc(sizeof(uintptr_t)*2);
     args[0] = (uintptr_t)queue;
@@ -256,7 +268,8 @@ void fake_extiSetInterruptMaskRegister(ExtiRegs *extiLoc , int pin,RequestMasked
     args[2] = (uintptr_t)mode;
     blinkyButtonSequenceStateMachine((uintptr_t)fake_extiSetInterruptMaskRegister,(void*)args);
 }
-
+void fake_doNothing(ExtiRegs *extiLoc , int pin,RequestMasked mode, int callNumber){
+}
 int fake_readPhysicalButton(int callNumber){
     return blinkyButtonSequenceStateMachine((uintptr_t)fake_readPhysicalButton,NULL);
 }
