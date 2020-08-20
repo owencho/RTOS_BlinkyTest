@@ -7,7 +7,6 @@
 #include "StateMachine.h"
 #include "TimerEvent.h"
 typedef enum{
-    BLINKY_START,
     LED_OFF_BUTTON_RELEASED,
     LED_ON,
     BLINK_ON,
