@@ -10,5 +10,5 @@
 
 
 int readPhysicalButton(){
-   return gpioReadBit(gpioA , 0 );
+	return gpioReadBit(gpioA , 0 );
 }

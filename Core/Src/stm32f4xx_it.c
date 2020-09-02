@@ -211,22 +211,6 @@ void EXTI0_IRQHandler(void){
 	buttonEventISR();
 	extiSetPendingRegister(exti,PIN_0);
 	return;
-	/*
-	if(buttonEvent != NULL){
-		if(readPhysicalButton() == 1){
-			buttonEvent = initEvent(buttonEvent,BUTTON_PRESSED_EVENT,
-									           handleButtonStateMachine,NULL);
-		}
-		else
-			buttonEvent = initEvent(buttonEvent,BUTTON_RELEASED_EVENT,
-									            handleButtonStateMachine,NULL);
-		addEventIntoEventQueue(buttonEvent);
-		buttonEvent = NULL;
-	}
-    extiSetPendingRegister(exti,PIN_0); //modify chg to extiClearPendingBit
-    //mask interrupt register
-    return;
-    */
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

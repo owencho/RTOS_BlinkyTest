@@ -53,10 +53,8 @@ ListItem * getNextListItem(List * linkedList){
 }
 
 List* listAddItemToTail(List * linkedList, ListItem * listItem ){
-    //ListItem * listItem ;
     if(linkedList == NULL || listItem == NULL)
         return linkedList;
-    //listItem = createListItem(data);
     listItem->next = NULL;
     if(linkedList->head == NULL){
         linkedList->head = listItem;
@@ -73,10 +71,8 @@ List* listAddItemToTail(List * linkedList, ListItem * listItem ){
 }
 
 List* listAddItemToHead(List * linkedList,  ListItem * listItem){
-  //  ListItem * listItem ;
     if(linkedList == NULL || listItem == NULL)
         return linkedList;
-    //listItem = createListItem(data);
     listItem->next = NULL;
     if(linkedList->head == NULL){
         linkedList->head = listItem;
@@ -100,7 +96,6 @@ List* listAddItemToNext(List * linkedList, ListItem * currentlistItem,ListItem *
     ListItem * checkListItem ;
     if(linkedList == NULL || currentlistItem == NULL || newListItem == NULL)
         return linkedList;
-    //newListItem = createListItem(data);
     newListItem->next = NULL;
     expectedListItem = findListItem(linkedList,currentlistItem,(LinkedListCompare)ListItemCompare) ;
     checkListItem = findListItem(linkedList,newListItem,(LinkedListCompare)ListItemCompare);
@@ -119,13 +114,11 @@ List* listAddItemToNext(List * linkedList, ListItem * currentlistItem,ListItem *
 void * deleteHeadListItem(List * linkedList){
     ListItem * nextListItem;
     ListItem * deletedListItem;
-    //void * data;
     if(linkedList == NULL)         //if linkedList input is NULL
         return NULL;
     if(linkedList->head ==NULL)    // if the linkedList has no listItem
         return NULL;
     deletedListItem = linkedList->head;
-    //data = deletedListItem->data;
     nextListItem = linkedList->head->next;
     if(linkedList->current == linkedList->head)  //if current is point to head
         linkedList->current = nextListItem;   // also change current as the head is deleted
@@ -133,7 +126,6 @@ void * deleteHeadListItem(List * linkedList){
         linkedList->tail = NULL;             // if last item deleted , the tail also points to NULL
     linkedList->head = nextListItem;
     linkedList->count--;
-    //freeListItem(deletedListItem);
     return deletedListItem;
 }
 
@@ -155,7 +147,6 @@ void* deleteSelectedListItem(List * linkedList,void  * listItemData,LinkedListCo
 }
 
 void* checkAndDeleteListItem(List * linkedList,ListItem * listItem){
-    //void * data;
     ListItem * deletedListItem;
     if(linkedList == NULL || listItem == NULL){
         return NULL;
@@ -169,15 +160,11 @@ void* checkAndDeleteListItem(List * linkedList,ListItem * listItem){
         linkedList->tail->next = NULL;
         linkedList->count--;
         deletedListItem = listItem;
-        //data = listItem->data;
-        //freeListItem(listItem);
     }
     else{
         linkedList->count--;
         linkedList->previous->next = listItem->next;
         deletedListItem = listItem;
-        //data = listItem->data;
-        //freeListItem(listItem);
     }
     resetCurrentListItem(linkedList);
     return deletedListItem;

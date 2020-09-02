@@ -21,13 +21,12 @@ void buttonInitStateMachine(ButtonStateMachine * sm){
 
 void buttonStartStateMachine(ButtonStateMachine * sm){
     rawButtonEventRequest(&sm->buttonEvent,PRESS);
-    //eventRequest for PRESS button
 }
 
 PressReleaseState getButtonState(ButtonStateMachine * sm){
     return sm->buttonStatus;
 }
-//pure event base void handleBlinkyStateMachine(BlinkyStateMachine * sm,Event *event)
+
 void handleButtonStateMachine(Event *event){
     ButtonStateMachine * sm = (ButtonStateMachine*) event->stateMachine;
     if(event == NULL){
@@ -37,8 +36,8 @@ void handleButtonStateMachine(Event *event){
         case BUTTON_RELEASED :
             if(event->type == BUTTON_PRESSED_EVENT){
               	if(buttonEventPtr !=NULL && expectedButtonState ==PRESS){
-          					sm->state=BUTTON_PRESSED_DEBOUNCING;
-          					timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
+					sm->state=BUTTON_PRESSED_DEBOUNCING;
+					timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
               	}
             }
         break;
@@ -53,20 +52,20 @@ void handleButtonStateMachine(Event *event){
 
         break;
         case BUTTON_PRESSED:
-          	if(event->type == BUTTON_RELEASED_EVENT){
-        				if(buttonEventPtr !=NULL && expectedButtonState == RELEASE){
-          					sm->state=BUTTON_RELEASED_DEBOUNCING;
-          					timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
-        				}
-          	}
+	      	if(event->type == BUTTON_RELEASED_EVENT){
+				if(buttonEventPtr !=NULL && expectedButtonState == RELEASE){
+					sm->state=BUTTON_RELEASED_DEBOUNCING;
+					timerEventRequest(&buttonBlinkyTimerEventQueue,&sm->timerEvent,100);
+				}
+	      	}
         break;
         case BUTTON_RELEASED_DEBOUNCING:
             if(event->type == TIMEOUT_EVENT){
-              	buttonEventPtr->type=BUTTON_RELEASED_EVENT;
-              	eventEnqueue(&buttonBlinkyEventQueue,buttonEventPtr);
-                rawButtonEventRequest(event ,BUTTON_PRESSED_EVENT);
-              	buttonEventPtr = NULL;
-                sm->state = BUTTON_RELEASED;
+	          	buttonEventPtr->type=BUTTON_RELEASED_EVENT;
+	          	eventEnqueue(&buttonBlinkyEventQueue,buttonEventPtr);
+	            rawButtonEventRequest(event ,BUTTON_PRESSED_EVENT);
+	          	buttonEventPtr = NULL;
+	            sm->state = BUTTON_RELEASED;
             }
         break;
     }
